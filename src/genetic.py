@@ -6,7 +6,7 @@ import pandas as pd
 def model():
     return 'hello'
 
-    
+
 class GeneticFit():
   def __init__(self,create_model):
         self.history=[]
@@ -106,12 +106,7 @@ class GeneticFit():
 
         if stagnation_counter >= stagnation_max:
           break
-          '''
-          for c in range(populate_size):
-            populate.append(self.mutate(populate[0]['W'],random = True))
-          stagnation_counter = 0 
-          continue   
-          '''                       
+             
       else:
         best_loss = n_best_loss
         stagnation_counter = 0
@@ -127,6 +122,6 @@ class GeneticFit():
     self.history = pd.DataFrame(self.history)
     m = 0
     for metric in model.metrics_names[1:]:
-      self.history[metric]=[x[m] for x in gf.history.metrics]
+      self.history[metric]=[x[m] for x in self.history.metrics]
       m +=1
     return model

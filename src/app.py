@@ -1,5 +1,5 @@
 from flask import Flask, Response
-from ai import AI
+from src.ai import AI
 # flask app
 app = Flask(__name__)
 

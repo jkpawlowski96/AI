@@ -1,4 +1,4 @@
-import packer
+from src.packer import json_to_dict, dict_to_json
 import json
 import numpy as np
 
@@ -8,7 +8,7 @@ class Config:
             #  default json configuration
             config = '{"Inputs": ["x1", "x2"], "Outputs": ["y"]}'
         
-        config = packer.json_to_dict(config)  # json to dictionary
+        config = json_to_dict(config)  # json to dictionary
         
         self.inputs_labales = config['Inputs']
         self.outputs_labels = config['Outputs']
