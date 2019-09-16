@@ -3,6 +3,10 @@ import time
 import numpy as np
 import pandas as pd
 
+def model():
+    return 'hello'
+
+    
 class GeneticFit():
   def __init__(self,create_model):
         self.history=[]
@@ -63,7 +67,7 @@ class GeneticFit():
     for epoch in range(epochs):
       
       self.lr = lr_init*(0.1**stagnation_counter)
-      
+
       old_populate = populate.copy()
       populate = []
       for W in old_populate:
@@ -76,7 +80,7 @@ class GeneticFit():
       old_populate = populate.copy()
       
       self.populate = []
-      tasks = []
+      #tasks = []
       for unit in old_populate:
         #x = threading.Thread(target=self.multiply, args=(unit,childrens))
         #x.start()
@@ -126,4 +130,3 @@ class GeneticFit():
       self.history[metric]=[x[m] for x in gf.history.metrics]
       m +=1
     return model
-
