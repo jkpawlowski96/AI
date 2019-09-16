@@ -1,8 +1,9 @@
 from flask import Flask, Response
-
+from ai import AI
 # flask app
 app = Flask(__name__)
 
+ai = AI()
 
 @app.route("/")
 def home():
@@ -16,3 +17,4 @@ def home():
 
 if __name__ == "__main__":
 	app.run(host="0.0.0.0")
+	
