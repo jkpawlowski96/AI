@@ -80,7 +80,7 @@ class GeneticFit():
       old_populate = populate.copy()
       
       self.populate = []
-      #tasks = []
+      tasks = []
       for unit in old_populate:
         #x = threading.Thread(target=self.multiply, args=(unit,childrens))
         #x.start()
