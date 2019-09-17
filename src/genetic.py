@@ -40,7 +40,7 @@ class GeneticFit():
     model = self.get_model()
     populate=[unit]
     W=unit['W']
-    for child in range(childrens):
+    for _ in range(childrens):
       mW = self.mutate(W.copy())
       model.set_weights(mW)
       evaluate = model.evaluate(self.X,self.y,verbose=False)
@@ -105,13 +105,7 @@ class GeneticFit():
         stagnation_counter += 1
 
         if stagnation_counter >= stagnation_max:
-          break
-          '''
-          for c in range(populate_size):
-            populate.append(self.mutate(populate[0]['W'],random = True))
-          stagnation_counter = 0 
-          continue   
-          '''                       
+          break                      
       else:
         best_loss = n_best_loss
         stagnation_counter = 0
@@ -130,4 +124,5 @@ class GeneticFit():
       self.history[metric]=[x[m] for x in gf.history.metrics]
       m +=1
     return model
+
 
