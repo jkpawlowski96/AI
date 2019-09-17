@@ -40,7 +40,7 @@ class GeneticFit():
     model = self.get_model()
     populate=[unit]
     W=unit['W']
-    for child in range(childrens):
+    for _ in range(childrens):
       mW = self.mutate(W.copy())
       model.set_weights(mW)
       evaluate = model.evaluate(self.X,self.y,verbose=False)
@@ -80,7 +80,7 @@ class GeneticFit():
       old_populate = populate.copy()
       
       self.populate = []
-      tasks = []
+      #tasks = []
       for unit in old_populate:
         #x = threading.Thread(target=self.multiply, args=(unit,childrens))
         #x.start()
@@ -105,13 +105,7 @@ class GeneticFit():
         stagnation_counter += 1
 
         if stagnation_counter >= stagnation_max:
-          break
-          '''
-          for c in range(populate_size):
-            populate.append(self.mutate(populate[0]['W'],random = True))
-          stagnation_counter = 0 
-          continue   
-          '''                       
+          break                      
       else:
         best_loss = n_best_loss
         stagnation_counter = 0
@@ -127,7 +121,8 @@ class GeneticFit():
     self.history = pd.DataFrame(self.history)
     m = 0
     for metric in model.metrics_names[1:]:
-      self.history[metric]=[x[m] for x in gf.history.metrics]
+      self.history[metric]=[x[m] for x in self.history['metrics']]
       m +=1
     return model
+
 
