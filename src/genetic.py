@@ -3,12 +3,10 @@ import time
 import numpy as np
 import pandas as pd
 
-def model():
-    return 'hello'
-
-
 class GeneticFit():
   def __init__(self,create_model):
+        self.lr = 0.1
+        self.lr_init = self.lr
         self.history=[]
         self.jobs=1
         self.model=create_model()
@@ -22,7 +20,9 @@ class GeneticFit():
       time.sleep(0.1)
       return self.get_model()
   
-  def mutate(self,W,random=False,lr=0.001):
+  def mutate(self,W,random=False,lr=None):
+    if not lr:
+      lr=self.lr
     if type(W)==list:
       for i in range(len(W)):
         W[i]=self.mutate(W[i],random)
@@ -41,7 +41,7 @@ class GeneticFit():
     populate=[unit]
     W=unit['W']
     for child in range(childrens):
-      mW = self.mutate(W.copy(),lr=self.lr)
+      mW = self.mutate(W.copy())
       model.set_weights(mW)
       evaluate = model.evaluate(self.X,self.y,verbose=False)
       populate.append({'W':mW,'loss':evaluate[0],'metrics':evaluate[1:]})
@@ -53,20 +53,20 @@ class GeneticFit():
     self.X=X
     self.y=y
     populate_size = 10
-    childrens = 4
-    lr_init = 0.1
-    epochs = 100
+    childrens = 1
+  
+    epochs = 1000
     
     best_loss = 1
     best_metrics = 0
     stagnation_max = 10
     stagnation_counter = 0
 
-    populate = [self.mutate(model.get_weights(),random = True) for c in range(100)]
+    populate = [self.mutate(model.get_weights(),random = True) for c in range(populate_size)]
     
     for epoch in range(epochs):
       
-      self.lr = lr_init*(0.1**stagnation_counter)
+      self.lr = self.lr_init*(0.1**stagnation_counter)
 
       old_populate = populate.copy()
       populate = []
@@ -80,7 +80,7 @@ class GeneticFit():
       old_populate = populate.copy()
       
       self.populate = []
-      #tasks = []
+      tasks = []
       for unit in old_populate:
         #x = threading.Thread(target=self.multiply, args=(unit,childrens))
         #x.start()
@@ -106,7 +106,12 @@ class GeneticFit():
 
         if stagnation_counter >= stagnation_max:
           break
-             
+          '''
+          for c in range(populate_size):
+            populate.append(self.mutate(populate[0]['W'],random = True))
+          stagnation_counter = 0 
+          continue   
+          '''                       
       else:
         best_loss = n_best_loss
         stagnation_counter = 0
@@ -122,6 +127,7 @@ class GeneticFit():
     self.history = pd.DataFrame(self.history)
     m = 0
     for metric in model.metrics_names[1:]:
-      self.history[metric]=[x[m] for x in self.history['metrics']]
+      self.history[metric]=[x[m] for x in gf.history.metrics]
       m +=1
     return model
+
