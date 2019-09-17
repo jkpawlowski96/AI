@@ -121,7 +121,7 @@ class GeneticFit():
     self.history = pd.DataFrame(self.history)
     m = 0
     for metric in model.metrics_names[1:]:
-      self.history[metric]=[x[m] for x in gf.history.metrics]
+      self.history[metric]=[x[m] for x in self.history['metrics']]
       m +=1
     return model
 
