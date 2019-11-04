@@ -1,5 +1,5 @@
 import numpy as np
-from data.model import Model
+from app.data.model import Model
 
 
 class Database():
