@@ -2,18 +2,22 @@ import threading
 import time
 import numpy as np
 import pandas as pd
+from src.logg import dialog
 
 class GeneticFit():
-  def __init__(self,create_model):
-        self.lr = 0.1
-        self.lr_init = self.lr
-        self.history=[]
-        self.jobs=1
-        self.model=create_model()
-        self.create_model= create_model
-        self.free_models=[self.create_model() for x in range(self.jobs)]
-  
+  lr=0.01
+  population=4
+  childrens=2
+  epochs=10
+  model=None
+  model_create=None
+  history=[]
+  free_models=[]
+
+
   def get_model(self):
+    return self.model
+    # to use in threading
     if self.free_models:
       return self.free_models.pop()
     else:
@@ -36,47 +40,47 @@ class GeneticFit():
     child = [(W1[i]+W2[i])/2 for i in range(len(W1))]
     return child
  
-  def multiply(self,unit,childrens):
+  def multiply(self,unit,childrens=None):
+    if not childrens:
+      childrens = self.childrens
     model = self.get_model()
     populate=[unit]
     W=unit['W']
     for _ in range(childrens):
       mW = self.mutate(W.copy())
-      model.set_weights(mW)
-      evaluate = model.evaluate(self.X,self.y,verbose=False)
-      populate.append({'W':mW,'loss':evaluate[0],'metrics':evaluate[1:]})
+      model.set_genom(mW)
+      evaluate = model.evaluate()
+      populate.append({'W':W,'reward':evaluate})
     self.free_models.append(model)
     self.populate += populate
   
-  def fit(self,X,y): 
-    model = self.model
-    self.X=X
-    self.y=y
-    populate_size = 10
-    childrens = 1
-  
-    epochs = 1000
-    
-    best_loss = 1
-    best_metrics = 0
+  def fit(self): 
+
+    self.lr_init = self.lr
+    if not self.model:
+      self.model = self.model_create()
+
+    best_loss = 0
+   
     stagnation_max = 10
     stagnation_counter = 0
 
-    populate = [self.mutate(model.get_weights(),random = True) for c in range(populate_size)]
+
+    populate = [self.mutate(self.model.genom(), random = True) for c in range(self.population*self.population)]
     
-    for epoch in range(epochs):
+    for epoch in range(self.epochs):
       
       self.lr = self.lr_init*(0.1**stagnation_counter)
 
       old_populate = populate.copy()
       populate = []
       for W in old_populate:
-        model.set_weights(W)    
-        evaluate = model.evaluate(X,y,verbose=False)
-        populate.append({'W':W,'loss':evaluate[0],'metrics':evaluate[1:]})
+        self.model.set_genom(W)    
+        evaluate = self.model.evaluate()
+        populate.append({'W':W,'reward':evaluate})
         
-      populate = sorted(populate, key = lambda i: i['loss'],reverse=False)
-      populate =populate[:populate_size]
+      populate = sorted(populate, key = lambda i: i['reward'],reverse=True)
+      populate =populate[:self.population]
       old_populate = populate.copy()
       
       self.populate = []
@@ -85,21 +89,21 @@ class GeneticFit():
         #x = threading.Thread(target=self.multiply, args=(unit,childrens))
         #x.start()
         #tasks.append(x)
-        self.multiply(unit,childrens)
+        self.multiply(unit)
 
       #while [t for t in tasks if t.is_alive()]:
       #  continue  
 
       populate=self.populate
       
-      populate = sorted(populate, key = lambda i: i['loss'],reverse=False) 
+      populate = sorted(populate, key = lambda i: i['reward'],reverse=True) 
       #print("populate:\\n",populate)
 
-      n_best_loss = populate[0]['loss']
-      best_metrics = populate[0]['metrics']
+      n_best_loss = populate[0]['reward']
+      #best_metrics = populate[0]['metrics']
       
-      if best_loss<=0.001:
-        break
+      #if best_loss>=0.99:
+      #  break
       
       if best_loss==n_best_loss:
         stagnation_counter += 1
@@ -110,19 +114,14 @@ class GeneticFit():
         best_loss = n_best_loss
         stagnation_counter = 0
       
-      populate = [unit['W'] for unit in populate[:populate_size]]  # natural selection
+      populate = [unit['W'] for unit in populate[:self.population]]  # natural selection
       populate = [self.cross(populate[i],populate[i+1]) for i in range(len(populate)-1)] + [populate[0]]  # crossing species
       
-      status ={'epoch':epoch,'loss':best_loss,'metrics':best_metrics}
-      print('Epoch[',epoch,']',' loss:',best_loss,' metrics:',best_metrics)
+      status ={'epoch':epoch,'reward':best_loss}
+      dialog('Epoch['+str(epoch)+']'+' reward:'+str(best_loss))
       self.history.append(status)
+  
 
-    model.set_weights(populate[0])
-    self.history = pd.DataFrame(self.history)
-    m = 0
-    for metric in model.metrics_names[1:]:
-      self.history[metric]=[x[m] for x in self.history['metrics']]
-      m +=1
-    return model
+    return self.model
 
 
