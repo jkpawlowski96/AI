@@ -13,6 +13,9 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
+
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
     </head>
 
 <body>
@@ -54,16 +57,17 @@
 
         </div>
     </nav>
+    <form action="http://localhost:5000/{{model.uid}}" method="POST">
 
-    
+    <div class="row">
+        
         <div class="col-md-4">
 
             <div class="card">
                 <div class="card-header">Options</div>
-                <form action="http://localhost:5000/{{model.uid}}" method="POST">
     
                 <div class="card-body">
-
+                        <div class="form-group">
                     <div class="custom-control custom-switch">
                         <input type="checkbox" class="custom-control-input" id="customSwitch1" name="options"
                             value="online_learning" {% if model.online_learning %}checked{% endif %}>
@@ -73,20 +77,71 @@
                 </div>
 
 
-                <div class="card-body">
-                    <label for="customRange1">Learning rate</label>
-                    <input type="range" class="custom-range" id="customRange1" name="lr">
+                <div class="form-group">
+                    <label for="customRange1">Some range</label>
+                    <input type="range" name=lr_percent value=100 class="custom-range" id="customRange1" name="lr">
                 </div>
+
+                <div class="form-group">
+                        <label for="exampleFormControlInput1">Learning rate</label>
+                        <input type="text"  name="lr" class="form-control" id="exampleFormControlInput1" value={{model.lr}}>      
+                </div>
+
+                <div class="form-group">
+                        <label for="exampleFormControlInput1">Batch size</label>
+                        <input type="number" name="batch_size" class="form-control" id="exampleFormControlInput1" value={{model.batch_size}}>      
+                </div>
+
+                
+                {% for n in range(model.n_layers()) %}
+                <div class="form-group">
+                        <label for="exampleFormControlInput1">Hiden layer {{n}}</label>
+                        <input type="number" name="l{{n}}" class="form-control" id="exampleFormControlInput1" value={{model.layers[n]}}>
+                        <a href="http://localhost:5000/layer/{{model.uid}}/add/{{n}}" class="btn  btn-outline-success btn-sm">Add</a>        
+                        <a href="http://localhost:5000/layer/{{model.uid}}/del/{{n}}" class="btn  btn-outline-danger btn-sm">Remove</a>
+                    </div>
+
+                
+                
+
+                {%endfor%}
 
                 <div class="text-center">
                     <p><input type="submit" class="btn  btn-primary btn-lg" value="Update" /></p>
         
                 </div>
             </div>
-        </form>     
+            </div>
+        </div>
+       
+        <div class="col-md-8">
 
+                <div class="card">
+                    <div class="card-header">History</div>
+        
+                    <div class="card-body">
+                        
+                            <div class="chart" id="bargraph">
+                                    <script>
+                                        var graphs = {{model.plot_losses() | safe}};
+                                        Plotly.plot('bargraph',graphs,{});
+                                    </script>
+                                </div>
+                        
+
+                    </div>
+    
+    
+            
+    
+                </div>
+            </div>
+           
+        
+    </div>
 
         
 
-   
+    </form>     
+
 </body>

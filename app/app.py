@@ -44,8 +44,8 @@ def model(uid):
     else:  # POST
         form = request.form
 
-        model.options(form.getlist('options'))
-
+        
+        model.update_model(form)
         return redirect(request.url)
 
 
@@ -63,7 +63,17 @@ def model_use(uid,data):
         x = data.split()
     return db.models[uid].forward(x)
      
+@app.route("/layer/<string:uid>/<string:option>/<int:layer>")
+def model_layer(uid,option,layer):
+    if option=='del':
+        db.models[uid].layers.pop(layer)
+        db.models[uid].update_model()
 
+    if option=='add':
+        db.models[uid].layers.insert(layer+1,1)
+        db.models[uid].update_model()
+
+    return redirect("/"+uid)
 
 if __name__ == "__main__":
     app.run(debug=True)
