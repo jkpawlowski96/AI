@@ -12,10 +12,6 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/hello")
-def hello():
-    return 'hello'
-
 
 @app.route("/build", methods=['GET', 'POST'])
 def build():
@@ -51,6 +47,22 @@ def model(uid):
         model.options(form.getlist('options'))
 
         return redirect(request.url)
+
+
+@app.route("/use/<string:uid>/<string:data>")
+def model_use(uid,data):
+    if uid not in db.uids:
+        return 'null'
+    data = data.replace(",",".")
+    if ';' in data:
+        x = data.split(";")[0].split()
+        state = data.split(";")[1].split()
+        reward = data.split(";")[2].split()
+        db.models[uid].add(state,reward)
+    else:
+        x = data.split()
+    return db.models[uid].forward(x)
+     
 
 
 if __name__ == "__main__":

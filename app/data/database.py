@@ -6,6 +6,9 @@ class Database():
     models = {}
     uids = []
 
+    def __init__(self):
+        self.add_model('ai_2',7,5,'Manipulator simulated by Unity 3D Engine')
+
     def build_model(self, form: dict):
         uid = form['uid']
         if uid in self.uids:
@@ -30,10 +33,8 @@ class Database():
             return False
         self.uids.append(uid)
 
-        model = Model()
+        model = Model(inputs,outputs)
         model.uid = uid
-        model.inputs = inputs
-        model.outputs = outputs
         model.description = description
 
         self.models[uid] = model
