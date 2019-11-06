@@ -88,11 +88,35 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="exampleFormControlInput1">GAMMA</label>
+                    <input type="text"  name="GAMMA" class="form-control" id="exampleFormControlInput1" value={{model.GAMMA}}>      
+            </div>
+
+            <select class="custom-select" name='opt'>
+                <label>Optimizer</label>
+                <option {%if model.opt=='SGD'%}
+                        selected
+                        {%endif%}
+                 value="SGD">SGD</option>
+                <option {%if model.opt=='Adam'%}
+                        selected
+                        {%endif%}
+                value="Adam">Adam</option>
+              </select>
+
+                <div class="form-group">
                         <label for="exampleFormControlInput1">Batch size</label>
                         <input type="number" name="batch_size" class="form-control" id="exampleFormControlInput1" value={{model.batch_size}}>      
                 </div>
+                 
+                <div class="form-group">
 
-                
+                <label for="exampleFormControlInput1">Inputs {{model.inputs}}</label>
+                </div>
+                <div class="form-group">
+
+                <a href="http://localhost:5000/layer/{{model.uid}}/add0/0" class="btn  btn-outline-success btn-sm">Add</a>        
+                </div>
                 {% for n in range(model.n_layers()) %}
                 <div class="form-group">
                         <label for="exampleFormControlInput1">Hiden layer {{n}}</label>
@@ -105,7 +129,10 @@
                 
 
                 {%endfor%}
+                <div class="form-group">
 
+                <label for="exampleFormControlInput1">Outputs {{model.outputs}}</label>
+                </div>
                 <div class="text-center">
                     <p><input type="submit" class="btn  btn-primary btn-lg" value="Update" /></p>
         
@@ -130,9 +157,18 @@
                         
 
                     </div>
+                    <div class="card_body">
+                        <a href="http://localhost:5000/history/{{model.uid}}/clear" class="btn  btn-outline-danger btn-lg">Clear</a>        
+
+                    </div>
     
     
-            
+                    <div class="card">
+                        <div class="card-header">Statistics</div>
+                        <div class="card-body">
+                            <label>Max action reward: {{model.model.reward_max}}</label>
+                        </div>
+                    </div>
     
                 </div>
             </div>

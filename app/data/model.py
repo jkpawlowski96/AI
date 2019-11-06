@@ -18,10 +18,11 @@ class Model():
     uid = None
     description = None
     online_learning = True
-    batch_size=10
+    batch_size=1000
     lr=0.001
+    GAMMA=0.999
     opt='Adam'
-    layers=[10,10]
+    layers=[]
     active = True
     model = None
 
@@ -45,6 +46,9 @@ class Model():
             self.options(form.getlist('options'))
             self.lr_percent = form['lr_percent']
             self.lr = np.float(form['lr'])
+            self.opt = form['opt']
+
+            self.GAMMA = np.float(form['GAMMA'])
             self.batch_size = np.int(form['batch_size'])
             for n in range(len(self.layers)):
                 try:
@@ -62,11 +66,14 @@ class Model():
 
         if self.layers is not self.model.layers:
             self.model = ai.Model_deep(self.inputs,self.outputs,
-                                    layers=self.layers)
+                                    layers=self.layers.copy())
 
         if self.lr is not self.model.lr:
             self.model.update_optimizer(lr=self.lr)
         
+        if self.GAMMA is not self.model.GAMMA:
+            self.model.GAMMA = self.GAMMA
+
         if self.opt is not self.model.opt:
             self.model.update_optimizer(opt = self.opt)
         

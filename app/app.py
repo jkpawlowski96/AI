@@ -69,10 +69,23 @@ def model_layer(uid,option,layer):
         db.models[uid].layers.pop(layer)
         db.models[uid].update_model()
 
+    if option=='add0':
+        option='add'
+        layer=-1
+
     if option=='add':
         db.models[uid].layers.insert(layer+1,1)
         db.models[uid].update_model()
 
+
+
+    return redirect("/"+uid)
+
+@app.route("/history/<string:uid>/<string:option>")
+def model_history(uid,option):
+    if option=='clear':
+        db.models[uid].losses=[]
+        db.models[uid].epoch=0
     return redirect("/"+uid)
 
 if __name__ == "__main__":
