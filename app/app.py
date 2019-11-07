@@ -100,7 +100,7 @@ def service_work(data, service):
 def service_layer(uid,option,layer):
     if option=='del':
         db.services[uid].layers.pop(layer)
-        db.services[uid].update_services()
+        db.services[uid].update_service()
 
     if option=='add0':
         option='add'
@@ -108,7 +108,7 @@ def service_layer(uid,option,layer):
 
     if option=='add':
         db.services[uid].layers.insert(layer+1,1)
-        db.services[uid].update_services()
+        db.services[uid].update_service()
 
 
 
