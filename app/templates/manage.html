@@ -28,15 +28,15 @@
     <div class="list-group">
 
 
-        {% for uid, model in data.models.items() %}
+        {% for uid, service in data.services.items() %}
 
         <a href="/{{uid}}" class="list-group-item list-group-item-action">
             <div class="d-flex w-100 justify-content-between">
                 <h5 class="mb-1">{{uid}}</h5>
-                <small>{{model.date}}</small>
+                <small>{{service.date}}</small>
             </div>
-            <p class="mb-1">Inputs: {{model.inputs}}, Outputs: {{model.outputs}}</p>
-            <small>{{model.description}}</small>
+            <p class="mb-1">Inputs: {{service.inputs}}, Outputs: {{service.outputs}}</p>
+            <small>{{service.description}}</small>
         </a>
 
         {% endfor %}

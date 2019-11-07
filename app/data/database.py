@@ -1,15 +1,15 @@
 import numpy as np
-from app.data.model import Model
+from app.ai.service import Service
 
 
 class Database():
-    models = {}
+    services = {}
     uids = []
 
     def __init__(self):
-        self.add_model('ai_2',7,5,'Manipulator simulated by Unity 3D Engine')
+        self.add_service('ai_2',7,5,'Manipulator simulated by Unity 3D Engine')
 
-    def build_model(self, form: dict):
+    def build_service(self, form: dict):
         uid = form['uid']
         if uid in self.uids:
             return 'Uid is already in use'
@@ -25,16 +25,16 @@ class Database():
 
         description = form['description']
 
-        self.add_model(uid, inputs, outputs, description)
+        self.add_service(uid, inputs, outputs, description)
         return True
 
-    def add_model(self, uid, inputs, outputs, description):
+    def add_service(self, uid, inputs, outputs, description):
         if uid in self.uids:
             return False
         self.uids.append(uid)
 
-        model = Model(inputs,outputs)
-        model.uid = uid
-        model.description = description
+        service = Service(inputs,outputs)
+        service.uid = uid
+        service.description = description
 
-        self.models[uid] = model
+        self.services[uid] = service

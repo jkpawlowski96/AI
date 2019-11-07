@@ -17,7 +17,7 @@ def index():
 def build():
     if request.method == "POST":
         form = request.form
-        resp = db.build_model(form)
+        resp = db.build_service(form)
         if resp is True:
             return index()
         else:
@@ -37,15 +37,15 @@ def manage():
 def model(uid):
     if uid not in db.uids:
         return redirect("/")
-    model = db.models[uid]
+    service = db.services[uid]
     if request.method == 'GET':
-        return render_template("model.html", model=model)
+        return render_template("model.html", model=service)
 
     else:  # POST
         form = request.form
 
         
-        model.update_model(form)
+        service.update_service(form)
         return redirect(request.url)
 
 
@@ -59,24 +59,24 @@ def model_use(uid,data):
         state = data.split(";")[1].split()
         action = data.split(";")[2].split()
         reward = data.split(";")[3].split()
-        db.models[uid].add(state,action,reward)
+        db.services[uid].add(state,action,reward)
     else:
         x = data.split()
-    return db.models[uid].forward(x)
+    return db.services[uid].forward(x)
      
 @app.route("/layer/<string:uid>/<string:option>/<int:layer>")
 def model_layer(uid,option,layer):
     if option=='del':
-        db.models[uid].layers.pop(layer)
-        db.models[uid].update_model()
+        db.services[uid].layers.pop(layer)
+        db.services[uid].update_services()
 
     if option=='add0':
         option='add'
         layer=-1
 
     if option=='add':
-        db.models[uid].layers.insert(layer+1,1)
-        db.models[uid].update_model()
+        db.services[uid].layers.insert(layer+1,1)
+        db.services[uid].update_services()
 
 
 
@@ -85,8 +85,8 @@ def model_layer(uid,option,layer):
 @app.route("/history/<string:uid>/<string:option>")
 def model_history(uid,option):
     if option=='clear':
-        db.models[uid].losses=[]
-        db.models[uid].epoch=0
+        db.services[uid].losses=[]
+        db.services[uid].epoch=0
     return redirect("/"+uid)
 
 if __name__ == "__main__":

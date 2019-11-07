@@ -1,5 +1,4 @@
-import app.ai.ai as ai
-
+import app.ai.model as model
 import time
 import datetime
 import numpy as np
@@ -11,7 +10,7 @@ import plotly.graph_objs as go
 
 import json
 
-class Model():
+class Service():
     inputs = None
     outputs = None
     date = None
@@ -30,37 +29,35 @@ class Model():
     batch=[]
     losses=[]
 
-
     def __init__(self,inputs,outputs):
         self.date = str(datetime.datetime.now())
 
         self.inputs = inputs
         self.outputs = outputs
 
-        #self.model = ai.Model(self.inputs,self.outputs)
-        self.model = ai.Model_deep( self.inputs,
+        self.model = model.Model_deep( self.inputs,
                                     self.outputs)
 
     def copy(self):
-        model = Model(self.inputs,self.outputs)
-        model.layers = self.layers.copy()
-        model.GAMMA = self.GAMMA
-        model.batch_size= self.batch_size
-        model.online_learning = self.online_learning
-        model.date=self.date # may be real date
-        model.description = 'tmp'
-        model.lr = self.lr
-        model.opt = self.opt
+        service = Service(self.inputs,self.outputs)
+        service.layers = self.layers.copy()
+        service.GAMMA = self.GAMMA
+        service.batch_size= self.batch_size
+        service.online_learning = self.online_learning
+        service.date=self.date # may be real date
+        service.description = 'tmp'
+        service.lr = self.lr
+        service.opt = self.opt
         # model.model = self.model.copy() # torch model must have copy() 
         # but update model should do the same
-        model.active = self.active
-        model.update_model()
-        return model
+        service.active = self.active
+        service.update_service()
+        return service
 
     def mutate(self):
         self.model.mutate()
 
-    def update_model(self,form=None):
+    def update_service(self,form=None):
         if form is not None:
             self.options(form.getlist('options'))
             self.lr_percent = form['lr_percent']
@@ -83,7 +80,7 @@ class Model():
 
                     
         if self.layers is not self.model.layers:
-            self.model = ai.Model_deep(self.inputs,self.outputs,
+            self.model = model.Model_deep(self.inputs,self.outputs,
                                     layers=self.layers.copy())
 
         if self.lr is not self.model.lr:
