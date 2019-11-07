@@ -57,8 +57,9 @@ def model_use(uid,data):
     if ';' in data:
         x = data.split(";")[0].split()
         state = data.split(";")[1].split()
-        reward = data.split(";")[2].split()
-        db.models[uid].add(state,reward)
+        action = data.split(";")[2].split()
+        reward = data.split(";")[3].split()
+        db.models[uid].add(state,action,reward)
     else:
         x = data.split()
     return db.models[uid].forward(x)

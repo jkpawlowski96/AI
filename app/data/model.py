@@ -18,8 +18,8 @@ class Model():
     uid = None
     description = None
     online_learning = True
-    batch_size=1000
-    lr=0.001
+    batch_size=10
+    lr=0.0001
     GAMMA=0.999
     opt='Adam'
     layers=[]
@@ -40,6 +40,25 @@ class Model():
         #self.model = ai.Model(self.inputs,self.outputs)
         self.model = ai.Model_deep( self.inputs,
                                     self.outputs)
+
+    def copy(self):
+        model = Model(self.inputs,self.outputs)
+        model.layers = self.layers.copy()
+        model.GAMMA = self.GAMMA
+        model.batch_size= self.batch_size
+        model.online_learning = self.online_learning
+        model.date=self.date # may be real date
+        model.description = 'tmp'
+        model.lr = self.lr
+        model.opt = self.opt
+        # model.model = self.model.copy() # torch model must have copy() 
+        # but update model should do the same
+        model.active = self.active
+        model.update_model()
+        return model
+
+    def mutate(self):
+        self.model.mutate()
 
     def update_model(self,form=None):
         if form is not None:
@@ -63,7 +82,6 @@ class Model():
                     pass
 
                     
-
         if self.layers is not self.model.layers:
             self.model = ai.Model_deep(self.inputs,self.outputs,
                                     layers=self.layers.copy())
@@ -115,14 +133,15 @@ class Model():
         x = self.model.forward(x.view((1,-1)))
         return self.from_tensor(x)
         
-    def add(self,state,reward):
+    def add(self,state,action,reward):
         if not self.online_learning:
             return None
 
         state = self.to_tensor(state)
+        action = self.to_tensor(action)
         reward = self.to_tensor(reward)
 
-        self.batch.append((state,reward))
+        self.batch.append((state,action,reward))
         if len(self.batch) >self.batch_size:
             loss = self.train_on_batch()
             self.losses.append(loss)
@@ -131,8 +150,9 @@ class Model():
     def train_on_batch(self):
         x = t.stack([t[0] for t in self.batch])
         y = t.stack([t[1] for t in self.batch])
+        r = t.stack([t[2] for t in self.batch])
 
-        loss = self.model.train(x,y)
+        loss = self.model.train(x,y,r)
         return loss
         
 

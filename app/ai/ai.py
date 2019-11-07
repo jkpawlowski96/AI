@@ -25,7 +25,7 @@ class AI(nn.Module):
         else:
             self.optimizer = t.optim.Adam(self.parameters(),lr=self.lr)
 
-    def train(self, state, reward):
+    def train(self, state, action, reward):
         
         self.optimizer.zero_grad()
     
@@ -43,18 +43,20 @@ class AI(nn.Module):
 
         #expected_action = (action * self.GAMMA) + reward
 
-        expected_action = action*self.GAMMA + (action/abs(action))*reward
+        expected_action = action*self.GAMMA + (action/abs(action+.000000001))*reward
 
 
         #loss = F.smooth_l1_loss(action,expected_action)
         #loss = F.mse_loss(action,expected_action)
         #loss = F.l1_loss(action,expected_action)
         loss = self.criterion(action,expected_action)
-        e = loss.sum().item()
-        print(f'sum loss {loss.sum()}',file=sys.stderr)
+        
 
         loss.backward()
         self.optimizer.step()
+        e = loss.item()
+        print(f'sum loss {e}',file=sys.stderr)
+
         return e
 
 class Model_deep(AI):
