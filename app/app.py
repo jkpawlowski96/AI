@@ -36,7 +36,7 @@ def manage():
 
 
 @app.route("/<string:uid>", methods=['GET', 'POST'])
-def model(uid):
+def service(uid):
     if uid not in db.uids:
         return redirect("/")
     service = db.services[uid]
@@ -52,14 +52,14 @@ def model(uid):
 
 
 @app.route("/use/<string:uid>/<string:data>")
-def model_use(uid,data):
+def service_use(uid,data):
     if uid not in db.uids:
         return 'null'
-    return model_work(data, db.services[uid])
+    return service_work(data, db.services[uid])
 
 
 @app.route("/token/<string:uid>")
-def service_use(uid):
+def get_token(uid):
     if uid not in db.uids:
         return 'null'
     service = db.services[uid]

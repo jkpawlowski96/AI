@@ -1,24 +1,20 @@
 import torch as t 
 
-from app.data.database import Database
-from app.ai.service import Service
 from app.ai.population import Population
 
 class Genetic():
     population_size = 8
     mr = 0.001
 
-    db = Database()
-    service = Service()
+    service = None
     pop = Population()
 
     def __init__(self, *args, **kwargs):
         for arg in args:
-            if type(arg)==type(Database):
-                self.db=arg
-            if type(arg)==type(Service):
-                self.service=arg
+            break
         for arg in kwargs:
+            if arg == 'service':
+                self.service=kwargs[arg]
             if arg == 'population_size':
                 self.population_size=kwargs[arg]
             if arg == 'mr':
@@ -37,7 +33,7 @@ class Genetic():
             _pop.add(x) # add child to new populate
         
 
-    def cross(self,x:Service,y:Service):
+    def cross(self,x,y):
         child = x.copy()
         child.model.cross(y.model)
         return child

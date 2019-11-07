@@ -1,10 +1,9 @@
 import numpy as np
-from app.ai.service import Service
 
 class Population():
-    self.pop = [] # populate
+    pop = [] # populate
 
-    def add(self,x:Service):
+    def add(self,x):
         self.pop.append(x)
 
     def sort(self,key='Reward'):

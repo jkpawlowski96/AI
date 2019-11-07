@@ -25,10 +25,13 @@ class Service():
     layers=[]
     active = True
     model = None
+
     genetic_learning = False
     mr=0.0001
     population_size=8
     genetic = None
+    tokens = []
+    free_tokens = []
 
     epoch=0
     batch=[]
@@ -73,7 +76,7 @@ class Service():
         return service
 
     def init_genetic(self):
-        self.genetic = Genetic( self,
+        self.genetic = Genetic( service=self,
                                 mr=self.mr,
                                 population_size=self.population_size) 
 
