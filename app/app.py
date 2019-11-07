@@ -5,6 +5,8 @@ import sys
 app = Flask(__name__)
 
 db = Database()
+db.add_service('ai_2',7,5,'Manipulator simulated by Unity 3D Engine')
+
 
 
 @app.route("/")
@@ -39,7 +41,7 @@ def model(uid):
         return redirect("/")
     service = db.services[uid]
     if request.method == 'GET':
-        return render_template("model.html", model=service)
+        return render_template("service.html", s=service)
 
     else:  # POST
         form = request.form
@@ -53,19 +55,49 @@ def model(uid):
 def model_use(uid,data):
     if uid not in db.uids:
         return 'null'
+    return model_work(data, db.services[uid])
+
+
+@app.route("/token/<string:uid>")
+def service_use(uid):
+    if uid not in db.uids:
+        return 'null'
+    service = db.services[uid]
+    if service.tokens:
+        return service.get_token()
+    else:
+        return 'null'
+
+@app.route("/use/<string:uid>/<string:token>/<string:data>")
+def service_use_token(uid,token,data):
+    if uid not in db.uids:
+        return 'null'
+    service = db.services[uid]
+    if token not in service.tokens:
+        return 'null'
+    service = service.use_token(token)
+    if '$' in data: # experiment finished
+        service.finish(data)
+        return 'null'
+    else:  
+        return service_work(data, service)
+
+    
+
+def service_work(data, service):
     data = data.replace(",",".")
     if ';' in data:
         x = data.split(";")[0].split()
         state = data.split(";")[1].split()
         action = data.split(";")[2].split()
         reward = data.split(";")[3].split()
-        db.services[uid].add(state,action,reward)
+        service.add(state,action,reward)
     else:
         x = data.split()
-    return db.services[uid].forward(x)
+    return service.forward(x)    
      
 @app.route("/layer/<string:uid>/<string:option>/<int:layer>")
-def model_layer(uid,option,layer):
+def service_layer(uid,option,layer):
     if option=='del':
         db.services[uid].layers.pop(layer)
         db.services[uid].update_services()
@@ -83,7 +115,7 @@ def model_layer(uid,option,layer):
     return redirect("/"+uid)
 
 @app.route("/history/<string:uid>/<string:option>")
-def model_history(uid,option):
+def service_history(uid,option):
     if option=='clear':
         db.services[uid].losses=[]
         db.services[uid].epoch=0

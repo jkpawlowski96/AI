@@ -4,13 +4,25 @@ import torch.nn.functional as F
 import sys
 
 
-class AI(nn.Module):
+class Model(nn.Module):
     GAMMA = .99
     lr=0.001
     opt = 'Adam'
     reward_max=0
     layers = [1]
     criterion = nn.MSELoss()
+
+    def cross(self,other):
+        state = self.state_dict()
+        _state = other.state_dict()
+        for k in state.keys():
+            x = state[k]
+            y = _state[k]
+            state[k] = (x+y)/2
+            
+
+        self.load_state_dict(state)
+        
 
     def update_optimizer(self,lr=None,opt=None):
         if lr is not None:
@@ -26,40 +38,21 @@ class AI(nn.Module):
             self.optimizer = t.optim.Adam(self.parameters(),lr=self.lr)
 
     def train(self, state, action, reward):
-        
         self.optimizer.zero_grad()
-    
         action = self.forward(state)
-
         rmin = min(reward)
         rmax= max(reward)
-        self.reward_max=max(rmax.item(),self.reward_max)
-        #reward = reward - rmin # to [0;n]
-        #reward = reward / reward.max() # to [0:1]
-        #reward = reward *2 -1 # to [-1:1]        
-
-
-        #expected_action = (action * self.GAMMA) + action*reward
-
+        self.reward_max=max(rmax.item(),self.reward_max)       
         #expected_action = (action * self.GAMMA) + reward
-
         expected_action = action*self.GAMMA + (action/abs(action+.000000001))*reward
-
-
-        #loss = F.smooth_l1_loss(action,expected_action)
-        #loss = F.mse_loss(action,expected_action)
-        #loss = F.l1_loss(action,expected_action)
         loss = self.criterion(action,expected_action)
-        
-
         loss.backward()
         self.optimizer.step()
         e = loss.item()
         print(f'sum loss {e}',file=sys.stderr)
-
         return e
 
-class Model_deep(AI):
+class Model_deep(Model):
     def __init__(self, inputs, outputs,layers=[1]):
         super().__init__()
 
@@ -74,6 +67,8 @@ class Model_deep(AI):
         self.out = nn.Linear(inputs,outputs)
 
         self.update_optimizer()
+
+        self.cross(other=self)
 
     def forward(self, x):
         for i in range(self.depth):

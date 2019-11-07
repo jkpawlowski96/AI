@@ -6,8 +6,10 @@ class Database():
     services = {}
     uids = []
 
-    def __init__(self):
-        self.add_service('ai_2',7,5,'Manipulator simulated by Unity 3D Engine')
+    def __init__(self,blanc=False):
+        if blanc:
+            pass
+        #self.add_service('ai_2',7,5,'Manipulator simulated by Unity 3D Engine')
 
     def build_service(self, form: dict):
         uid = form['uid']

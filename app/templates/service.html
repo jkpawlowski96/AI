@@ -33,7 +33,7 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" href="/{{model.uid}}">{{model.uid}} <span class="sr-only">(current)</span></a>
+                    <a class="nav-link" href="/{{s.uid}}">{{s.uid}} <span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Link</a>
@@ -57,7 +57,7 @@
 
         </div>
     </nav>
-    <form action="http://localhost:5000/{{model.uid}}" method="POST">
+    <form action="http://localhost:5000/{{s.uid}}" method="POST">
 
     <div class="row">
         
@@ -70,7 +70,7 @@
                         <div class="form-group">
                     <div class="custom-control custom-switch">
                         <input type="checkbox" class="custom-control-input" id="customSwitch1" name="options"
-                            value="online_learning" {% if model.online_learning %}checked{% endif %}>
+                            value="online_learning" {% if s.online_learning %}checked{% endif %}>
 
                         <label class="custom-control-label" for="customSwitch1">Online learning</label>
                     </div>
@@ -84,21 +84,21 @@
 
                 <div class="form-group">
                         <label for="exampleFormControlInput1">Learning rate</label>
-                        <input type="text"  name="lr" class="form-control" id="exampleFormControlInput1" value={{model.lr}}>      
+                        <input type="text"  name="lr" class="form-control" id="exampleFormControlInput1" value={{s.lr}}>      
                 </div>
 
                 <div class="form-group">
                     <label for="exampleFormControlInput1">GAMMA</label>
-                    <input type="text"  name="GAMMA" class="form-control" id="exampleFormControlInput1" value={{model.GAMMA}}>      
+                    <input type="text"  name="GAMMA" class="form-control" id="exampleFormControlInput1" value={{s.GAMMA}}>      
             </div>
 
             <select class="custom-select" name='opt'>
                 <label>Optimizer</label>
-                <option {%if model.opt=='SGD'%}
+                <option {%if s.opt=='SGD'%}
                         selected
                         {%endif%}
                  value="SGD">SGD</option>
-                <option {%if model.opt=='Adam'%}
+                <option {%if s.opt=='Adam'%}
                         selected
                         {%endif%}
                 value="Adam">Adam</option>
@@ -106,23 +106,23 @@
 
                 <div class="form-group">
                         <label for="exampleFormControlInput1">Batch size</label>
-                        <input type="number" name="batch_size" class="form-control" id="exampleFormControlInput1" value={{model.batch_size}}>      
+                        <input type="number" name="batch_size" class="form-control" id="exampleFormControlInput1" value={{s.batch_size}}>      
                 </div>
                  
                 <div class="form-group">
 
-                <label for="exampleFormControlInput1">Inputs {{model.inputs}}</label>
+                <label for="exampleFormControlInput1">Inputs {{s.inputs}}</label>
                 </div>
                 <div class="form-group">
 
-                <a href="http://localhost:5000/layer/{{model.uid}}/add0/0" class="btn  btn-outline-success btn-sm">Add</a>        
+                <a href="http://localhost:5000/layer/{{s.uid}}/add0/0" class="btn  btn-outline-success btn-sm">Add</a>        
                 </div>
-                {% for n in range(model.n_layers()) %}
+                {% for n in range(s.n_layers()) %}
                 <div class="form-group">
                         <label for="exampleFormControlInput1">Hiden layer {{n}}</label>
-                        <input type="number" name="l{{n}}" class="form-control" id="exampleFormControlInput1" value={{model.layers[n]}}>
-                        <a href="http://localhost:5000/layer/{{model.uid}}/add/{{n}}" class="btn  btn-outline-success btn-sm">Add</a>        
-                        <a href="http://localhost:5000/layer/{{model.uid}}/del/{{n}}" class="btn  btn-outline-danger btn-sm">Remove</a>
+                        <input type="number" name="l{{n}}" class="form-control" id="exampleFormControlInput1" value={{s.layers[n]}}>
+                        <a href="http://localhost:5000/layer/{{s.uid}}/add/{{n}}" class="btn  btn-outline-success btn-sm">Add</a>        
+                        <a href="http://localhost:5000/layer/{{s.uid}}/del/{{n}}" class="btn  btn-outline-danger btn-sm">Remove</a>
                     </div>
 
                 
@@ -131,7 +131,7 @@
                 {%endfor%}
                 <div class="form-group">
 
-                <label for="exampleFormControlInput1">Outputs {{model.outputs}}</label>
+                <label for="exampleFormControlInput1">Outputs {{s.outputs}}</label>
                 </div>
                 <div class="text-center">
                     <p><input type="submit" class="btn  btn-primary btn-lg" value="Update" /></p>
@@ -150,7 +150,7 @@
                         
                             <div class="chart" id="bargraph">
                                     <script>
-                                        var graphs = {{model.plot_losses() | safe}};
+                                        var graphs = {{s.plot_losses() | safe}};
                                         Plotly.plot('bargraph',graphs,{});
                                     </script>
                                 </div>
@@ -158,7 +158,7 @@
 
                     </div>
                     <div class="card_body">
-                        <a href="http://localhost:5000/history/{{model.uid}}/clear" class="btn  btn-outline-danger btn-lg">Clear</a>        
+                        <a href="http://localhost:5000/history/{{s.uid}}/clear" class="btn  btn-outline-danger btn-lg">Clear</a>        
 
                     </div>
     
@@ -166,7 +166,7 @@
                     <div class="card">
                         <div class="card-header">Statistics</div>
                         <div class="card-body">
-                            <label>Max action reward: {{model.model.reward_max}}</label>
+                            <label>Max action reward: {{s.model.reward_max}}</label>
                         </div>
                     </div>
     

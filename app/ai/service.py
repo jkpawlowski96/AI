@@ -29,7 +29,9 @@ class Service():
     batch=[]
     losses=[]
 
-    def __init__(self,inputs,outputs):
+    def __init__(self,inputs=1,outputs=1,blanc=False):
+        if blanc:
+            pass
         self.date = str(datetime.datetime.now())
 
         self.inputs = inputs
@@ -48,14 +50,11 @@ class Service():
         service.description = 'tmp'
         service.lr = self.lr
         service.opt = self.opt
-        # model.model = self.model.copy() # torch model must have copy() 
-        # but update model should do the same
         service.active = self.active
         service.update_service()
-        return service
 
-    def mutate(self):
-        self.model.mutate()
+        service.model = self.model.copy() # torch model must have copy() 
+        return service
 
     def update_service(self,form=None):
         if form is not None:
