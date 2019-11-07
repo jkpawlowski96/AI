@@ -1,4 +1,5 @@
 import app.ai.model as model
+from app.ai.genetic import Genetic
 import time
 import datetime
 import numpy as np
@@ -24,6 +25,10 @@ class Service():
     layers=[]
     active = True
     model = None
+    genetic_learning = False
+    mr=0.0001
+    population_size=8
+    genetic = None
 
     epoch=0
     batch=[]
@@ -39,6 +44,17 @@ class Service():
 
         self.model = model.Model_deep( self.inputs,
                                     self.outputs)
+        self.update_genetic()
+
+    def use_token(self,token):
+        return self.genetic.use_token(token)
+
+    def get_token(self):
+        if self.free_tokens:
+            token = self.free_tokens.pop(0) 
+            return token
+        else:
+            return 'null'
 
     def copy(self):
         service = Service(self.inputs,self.outputs)
@@ -55,6 +71,17 @@ class Service():
 
         service.model = self.model.copy() # torch model must have copy() 
         return service
+
+    def init_genetic(self):
+        self.genetic = Genetic( self,
+                                mr=self.mr,
+                                population_size=self.population_size) 
+
+    def update_genetic(self):
+        if self.genetic_learning:
+            self.init_genetic()
+        else:
+            self.genetic=None
 
     def update_service(self,form=None):
         if form is not None:
