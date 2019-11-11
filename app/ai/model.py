@@ -2,27 +2,21 @@ import torch as t
 import torch.nn as nn
 import torch.nn.functional as F
 import sys
-
+import copy
 
 class Model(nn.Module):
-    GAMMA = .99
-    lr=0.001
-    opt = 'Adam'
-    reward_max=0
-    layers = [1]
-    criterion = nn.MSELoss()
 
-    def cross(self,other):
-        state = self.state_dict()
-        _state = other.state_dict()
-        for k in state.keys():
-            x = state[k]
-            y = _state[k]
-            state[k] = (x+y)/2
-            
+    def __init__(self):
+        super().__init__()
+        self.GAMMA = .99
+        self.lr=0.001
+        self.opt = 'Adam'
+        self.reward_max=0
+        self.layers = [1]
+        self.criterion = nn.MSELoss()
 
-        self.load_state_dict(state)
-        
+    def copy(self):
+        return copy.deepcopy(self)
 
     def update_optimizer(self,lr=None,opt=None):
         if lr is not None:
@@ -68,14 +62,14 @@ class Model_deep(Model):
 
         self.update_optimizer()
 
-        self.cross(other=self)
+        
 
     def forward(self, x):
         for i in range(self.depth):
             x = self.linear[i](x)
             x = F.relu(x)
         x = self.out(x)
-        x = F.tanh(x)
+        x = F.sigmoid(x)
         return x
 
 

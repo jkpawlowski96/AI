@@ -5,41 +5,40 @@ import datetime
 import numpy as np
 import torch as t
 import threading
-
+import sys
 import plotly
 import plotly.graph_objs as go
 
 import json
 
 class Service():
-    inputs = None
-    outputs = None
-    date = None
-    uid = None
-    description = None
-    online_learning = True
-    batch_size=10
-    lr=0.0001
-    GAMMA=0.999
-    opt='Adam'
-    layers=[]
-    active = True
-    model = None
-
-    genetic_learning = False
-    mr=0.0001
-    population_size=8
-    genetic = None
-    tokens = []
-    free_tokens = []
-
-    epoch=0
-    batch=[]
-    losses=[]
+    
 
     def __init__(self,inputs=1,outputs=1,blanc=False):
         if blanc:
             pass
+
+        self.uid = None
+        self.description = None
+        self.online_learning = True
+        self.batch_size=10
+        self.lr=0.0001
+        self.GAMMA=0.999
+        self.opt='Adam'
+        self.layers=[]
+        self.active = True
+
+        self.genetic_learning = False
+        self.mr=0.01
+        self.population_size=1
+        self.genetic = None
+
+        self.reward_total=0
+
+        self.epoch=0
+        self.batch=[]
+        self.losses=[]
+
         self.date = str(datetime.datetime.now())
 
         self.inputs = inputs
@@ -53,11 +52,8 @@ class Service():
         return self.genetic.use_token(token)
 
     def get_token(self):
-        if self.free_tokens:
-            token = self.free_tokens.pop(0) 
-            return token
-        else:
-            return 'null'
+        return self.genetic.free_token() 
+ 
 
     def copy(self):
         service = Service(self.inputs,self.outputs)
@@ -75,26 +71,35 @@ class Service():
         service.model = self.model.copy() # torch model must have copy() 
         return service
 
-    def init_genetic(self):
-        self.genetic = Genetic( service=self,
-                                mr=self.mr,
-                                population_size=self.population_size) 
-
+        
     def update_genetic(self):
-        if self.genetic_learning:
-            self.init_genetic()
-        else:
-            self.genetic=None
+        if self.genetic_learning and not self.genetic: # start genetic
+            self.genetic = Genetic(service=self)
+        if not self.genetic_learning: # remove gentic
+            self.genetic = None
 
     def update_service(self,form=None):
+        self.update_genetic()
         if form is not None:
+            # checklist
             self.options(form.getlist('options'))
+            
+            form = form.to_dict()
+            # q-learning
             self.lr_percent = form['lr_percent']
             self.lr = np.float(form['lr'])
             self.opt = form['opt']
-
             self.GAMMA = np.float(form['GAMMA'])
             self.batch_size = np.int(form['batch_size'])
+
+            # genetic
+            if self.genetic_learning:
+                if 'mr' in form.keys():
+                    self.mr = np.float(form['mr'])
+                if 'population_size' in form.keys():
+                    self.population_size = np.int(form['population_size'])
+
+            # nn configuration
             for n in range(len(self.layers)):
                 try:
                     l = form['l'+str(n)]
@@ -120,6 +125,8 @@ class Service():
 
         if self.opt is not self.model.opt:
             self.model.update_optimizer(opt = self.opt)
+
+    
         
     def plot_losses(self):
         
@@ -154,6 +161,19 @@ class Service():
         else:
             self.online_learning = False
 
+        if 'genetic_learning' in options:
+            self.genetic_learning = True
+        else:
+            self.genetic_learning = False
+
+    def finish(self,token,data):
+        if not self.genetic:
+            return 'null'
+        
+        data = data.split('$')[1]
+        reward = np.float(data)
+        self.genetic.finish(token,reward)
+
     def forward(self,x):
         x = self.to_tensor(x)
         x = self.model.forward(x.view((1,-1)))
@@ -183,14 +203,18 @@ class Service():
         
 
     def to_tensor(self,x):
-        x = [np.float(v) for v in x]
+        x = np.array(x).astype(np.float)
+    
+        #x = [np.float(v) for v in x]
         x = t.FloatTensor(x)
         return x
 
     def from_tensor(self,x):
+        x = x.round()
         resp = ""
         for v in x.view(-1):
-            resp+=str(v.item())+" "
+            resp+=str(v.item())+";"
+        resp= resp[:-1]
         resp = resp.replace(".",",")
         return resp
 

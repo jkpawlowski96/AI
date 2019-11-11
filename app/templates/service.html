@@ -19,6 +19,7 @@
     </head>
 
 <body>
+    <form action="http://localhost:5000/{{s.uid}}" method="POST">
 
 
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -53,11 +54,11 @@
                 <li class="nav-item">
                     <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
                 </li>
+                <li><p><input type="submit" class="btn  btn-primary btn-md" value="Update" /></p></li>
             </ul>
 
         </div>
     </nav>
-    <form action="http://localhost:5000/{{s.uid}}" method="POST">
 
     <div class="row">
         
@@ -133,16 +134,36 @@
 
                 <label for="exampleFormControlInput1">Outputs {{s.outputs}}</label>
                 </div>
-                <div class="text-center">
-                    <p><input type="submit" class="btn  btn-primary btn-lg" value="Update" /></p>
+                
+                    
         
-                </div>
+                
             </div>
+            </div>
+            <div class="card">
+                <div class="card-header">Genetic</div>
+                <div class="card-body">
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="customSwitch2" name="options"
+                            value="genetic_learning" {% if s.genetic_learning %}checked{% endif %}>
+
+                        <label class="custom-control-label" for="customSwitch2">Genetic Learning</label>
+                    </div>
+                    {% if s.genetic_learning %}
+                    <div class="form-group">
+                        <label for="exampleFormControlInput1">Population size</label>
+                        <input type="number"  name="population_size" class="form-control" id="exampleFormControlInput1" value={{s.population_size}}>      
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleFormControlInput1">Mutation rate</label>
+                        <input type="text"  name="mr" class="form-control" id="exampleFormControlInput1" value={{s.mr}}>      
+                    </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
        
         <div class="col-md-8">
-
                 <div class="card">
                     <div class="card-header">History</div>
         
@@ -162,19 +183,22 @@
 
                     </div>
     
-    
-                    <div class="card">
+                </div>
+                <div class="card">
                         <div class="card-header">Statistics</div>
                         <div class="card-body">
                             <label>Max action reward: {{s.model.reward_max}}</label>
                         </div>
-                    </div>
-    
                 </div>
+    
             </div>
+        </div>
+
+    </div>
+</div>
            
         
-    </div>
+    
 
         
 

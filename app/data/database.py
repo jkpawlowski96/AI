@@ -38,5 +38,6 @@ class Database():
         service = Service(inputs,outputs)
         service.uid = uid
         service.description = description
-
+        service.genetic_learning = True
+        service.update_service()
         self.services[uid] = service

@@ -5,7 +5,7 @@ import sys
 app = Flask(__name__)
 
 db = Database()
-db.add_service('ai_2',7,5,'Manipulator simulated by Unity 3D Engine')
+db.add_service('ai_2',7,5*2,'Manipulator simulated by Unity 3D Engine')
 
 
 
@@ -45,8 +45,6 @@ def service(uid):
 
     else:  # POST
         form = request.form
-
-        
         service.update_service(form)
         return redirect(request.url)
 
@@ -63,37 +61,34 @@ def get_token(uid):
     if uid not in db.uids:
         return 'null'
     service = db.services[uid]
-    if service.tokens:
-        return service.get_token()
-    else:
-        return 'null'
+    
+    return service.get_token()
+    
 
 @app.route("/use/<string:uid>/<string:token>/<string:data>")
 def service_use_token(uid,token,data):
     if uid not in db.uids:
         return 'null'
     service = db.services[uid]
-    if token not in service.tokens:
-        return 'null'
-    service = service.use_token(token)
+    
     if '$' in data: # experiment finished
-        service.finish(data)
+        service.finish(token, data)
         return 'null'
     else:  
+        service = service.use_token(token)
         return service_work(data, service)
 
     
-
 def service_work(data, service):
     data = data.replace(",",".")
-    if ';' in data:
-        x = data.split(";")[0].split()
-        state = data.split(";")[1].split()
-        action = data.split(";")[2].split()
-        reward = data.split(";")[3].split()
+    if '*' in data:
+        x = data.split("*")[0].split(';')
+        state = data.split("*")[1].split(';')
+        action = data.split("*")[2].split(';')
+        reward = data.split("*")[3].split(';')
         service.add(state,action,reward)
     else:
-        x = data.split()
+        x = data.split(';')
     return service.forward(x)    
      
 @app.route("/layer/<string:uid>/<string:option>/<int:layer>")

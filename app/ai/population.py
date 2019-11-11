@@ -1,9 +1,10 @@
 import numpy as np
 
 class Population():
-    pop = [] # populate
+    
 
     def add(self,x):
+        self.pop = []
         self.pop.append(x)
 
     def sort(self,key='Reward'):
@@ -23,7 +24,10 @@ class Population():
         if i >=0:
             if i in range(len(self.pop)):
                 return self.pop[i]
-        if len(self.pop is 0):
+        if len(self.pop)  is 0:
             return None
-        i = np.random.randint(0,len(self.pop)-1)
+        if len(self.pop) > 1:
+            i = np.random.randint(low=0,high=len(self.pop)-1)
+        else:
+            i = 0
         return self.pop[i]
