@@ -2,7 +2,6 @@ import threading
 import time
 import numpy as np
 import pandas as pd
-from src.logg import dialog
 
 class GeneticFit():
   lr=0.01
@@ -50,7 +49,7 @@ class GeneticFit():
       mW = self.mutate(W.copy())
       model.set_genom(mW)
       evaluate = model.evaluate()
-      populate.append({'W':W,'reward':evaluate})
+      populate.append({'W':mW,'loss':evaluate[0],'metrics':evaluate[1:]})
     self.free_models.append(model)
     self.populate += populate
   
@@ -60,13 +59,13 @@ class GeneticFit():
     if not self.model:
       self.model = self.model_create()
 
-    best_loss = 0
-   
+    best_loss = 1
+    best_metrics = 0
     stagnation_max = 10
     stagnation_counter = 0
 
 
-    populate = [self.mutate(self.model.genom(), random = True) for c in range(self.population*self.population)]
+    populate = [self.mutate(self.model.genom(), random = True) for c in range(self.population)]
     
     for epoch in range(self.epochs):
       
@@ -77,9 +76,9 @@ class GeneticFit():
       for W in old_populate:
         self.model.set_genom(W)    
         evaluate = self.model.evaluate()
-        populate.append({'W':W,'reward':evaluate})
+        populate.append({'W':W,'loss':evaluate[0],'metrics':evaluate[1:]})
         
-      populate = sorted(populate, key = lambda i: i['reward'],reverse=True)
+      populate = sorted(populate, key = lambda i: i['loss'],reverse=False)
       populate =populate[:self.population]
       old_populate = populate.copy()
       
@@ -96,14 +95,14 @@ class GeneticFit():
 
       populate=self.populate
       
-      populate = sorted(populate, key = lambda i: i['reward'],reverse=True) 
+      populate = sorted(populate, key = lambda i: i['loss'],reverse=False) 
       #print("populate:\\n",populate)
 
-      n_best_loss = populate[0]['reward']
-      #best_metrics = populate[0]['metrics']
+      n_best_loss = populate[0]['loss']
+      best_metrics = populate[0]['metrics']
       
-      #if best_loss>=0.99:
-      #  break
+      if best_loss<=0.001:
+        break
       
       if best_loss==n_best_loss:
         stagnation_counter += 1
@@ -117,11 +116,16 @@ class GeneticFit():
       populate = [unit['W'] for unit in populate[:self.population]]  # natural selection
       populate = [self.cross(populate[i],populate[i+1]) for i in range(len(populate)-1)] + [populate[0]]  # crossing species
       
-      status ={'epoch':epoch,'reward':best_loss}
-      dialog('Epoch['+str(epoch)+']'+' reward:'+str(best_loss))
+      status ={'epoch':epoch,'loss':best_loss,'metrics':best_metrics}
+      print('Epoch[',epoch,']',' loss:',best_loss,' metrics:',best_metrics)
       self.history.append(status)
-  
 
+    self.model.set_genom(populate[0])
+    self.history = pd.DataFrame(self.history)
+    m = 0
+    for metric in self.model.metrics:
+      self.history[metric]=[x[m] for x in self.history['metrics']]
+      m +=1
     return self.model
 
 

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+
+<head>
+    <title>AI</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+    </head>
+
+<body>
+    <form action="http://localhost:5000/{{s.uid}}" method="POST">
+
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="./"><img
+                src="https://cdn2.iconfinder.com/data/icons/artificial-intelligence-ai/64/digital-brain-ai-machine-learning-artificial-intelligence-512.png"
+                width="30" height="30" class="d-inline-block align-top" alt=""> AI</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="/{{s.uid}}">{{s.uid}} <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Link</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Dropdown
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="#">Action</a>
+                        <a class="dropdown-item" href="#">Another action</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#">Something else here</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+                </li>
+                <li><p><input type="submit" class="btn  btn-primary btn-md" value="Update" /></p></li>
+            </ul>
+
+        </div>
+    </nav>
+
+    <div class="row">
+        
+        <div class="col-md-4">
+
+            <div class="card">
+                <div class="card-header">Options</div>
+    
+                <div class="card-body">
+                        <div class="form-group">
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="customSwitch1" name="options"
+                            value="online_learning" {% if s.online_learning %}checked{% endif %}>
+
+                        <label class="custom-control-label" for="customSwitch1">Online learning</label>
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <label for="customRange1">Some range</label>
+                    <input type="range" name=lr_percent value=100 class="custom-range" id="customRange1" name="lr">
+                </div>
+
+                <div class="form-group">
+                        <label for="exampleFormControlInput1">Learning rate</label>
+                        <input type="text"  name="lr" class="form-control" id="exampleFormControlInput1" value={{s.lr}}>      
+                </div>
+
+                <div class="form-group">
+                    <label for="exampleFormControlInput1">GAMMA</label>
+                    <input type="text"  name="GAMMA" class="form-control" id="exampleFormControlInput1" value={{s.GAMMA}}>      
+            </div>
+
+            <select class="custom-select" name='opt'>
+                <label>Optimizer</label>
+                <option {%if s.opt=='SGD'%}
+                        selected
+                        {%endif%}
+                 value="SGD">SGD</option>
+                <option {%if s.opt=='Adam'%}
+                        selected
+                        {%endif%}
+                value="Adam">Adam</option>
+              </select>
+
+                <div class="form-group">
+                        <label for="exampleFormControlInput1">Batch size</label>
+                        <input type="number" name="batch_size" class="form-control" id="exampleFormControlInput1" value={{s.batch_size}}>      
+                </div>
+                 
+                <div class="form-group">
+
+                <label for="exampleFormControlInput1">Inputs {{s.inputs}}</label>
+                </div>
+                <div class="form-group">
+
+                <a href="http://localhost:5000/layer/{{s.uid}}/add0/0" class="btn  btn-outline-success btn-sm">Add</a>        
+                </div>
+                {% for n in range(s.n_layers()) %}
+                <div class="form-group">
+                        <label for="exampleFormControlInput1">Hiden layer {{n}}</label>
+                        <input type="number" name="l{{n}}" class="form-control" id="exampleFormControlInput1" value={{s.layers[n]}}>
+                        <a href="http://localhost:5000/layer/{{s.uid}}/add/{{n}}" class="btn  btn-outline-success btn-sm">Add</a>        
+                        <a href="http://localhost:5000/layer/{{s.uid}}/del/{{n}}" class="btn  btn-outline-danger btn-sm">Remove</a>
+                    </div>
+
+                
+                
+
+                {%endfor%}
+                <div class="form-group">
+
+                <label for="exampleFormControlInput1">Outputs {{s.outputs}}</label>
+                </div>
+                
+                    
+        
+                
+            </div>
+            </div>
+            <div class="card">
+                <div class="card-header">Genetic</div>
+                <div class="card-body">
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="customSwitch2" name="options"
+                            value="genetic_learning" {% if s.genetic_learning %}checked{% endif %}>
+
+                        <label class="custom-control-label" for="customSwitch2">Genetic Learning</label>
+                    </div>
+                    {% if s.genetic_learning %}
+                    <div class="form-group">
+                        <label for="exampleFormControlInput1">Population size</label>
+                        <input type="number"  name="population_size" class="form-control" id="exampleFormControlInput1" value={{s.population_size}}>      
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleFormControlInput1">Mutation rate</label>
+                        <input type="text"  name="mr" class="form-control" id="exampleFormControlInput1" value={{s.mr}}>      
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+       
+        <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">History</div>
+        
+                    <div class="card-body">
+                        
+                            <div class="chart" id="bargraph">
+                                    <script>
+                                        var graphs = {{s.plot_losses() | safe}};
+                                        Plotly.plot('bargraph',graphs,{});
+                                    </script>
+                                </div>
+                        
+
+                    </div>
+                    <div class="card_body">
+                        <a href="http://localhost:5000/history/{{s.uid}}/clear" class="btn  btn-outline-danger btn-lg">Clear</a>        
+
+                    </div>
+    
+                </div>
+                <div class="card">
+                        <div class="card-header">Statistics</div>
+                        <div class="card-body">
+                            <label>Max action reward: {{s.model.reward_max}}</label>
+                        </div>
+                </div>
+    
+            </div>
+        </div>
+
+    </div>
+</div>
+           
+        
+    
+
+        
+
+    </form>     
+
+</body>
