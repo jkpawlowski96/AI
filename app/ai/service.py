@@ -29,8 +29,8 @@ class Service():
         self.active = True
 
         self.genetic_learning = False
-        self.mr=0.01
-        self.population_size=1
+        self.mr=0.1
+        self.population_size=4
         self.genetic = None
 
         self.reward_total=0
@@ -171,6 +171,7 @@ class Service():
             return 'null'
         
         data = data.split('$')[1]
+        data = data.replace(',','.')
         reward = np.float(data)
         self.genetic.finish(token,reward)
 

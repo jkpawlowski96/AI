@@ -2,6 +2,7 @@ import torch as t
 import random
 import string
 from app.ai.population import Population
+import numpy as np
 
 class Genetic():
     
@@ -83,8 +84,9 @@ class Genetic():
         pop = self.pop
         self.init_population() # new empty population
         pop.sort() # by reward as default
-
-        for i in range(self.population_size()/2):
+        survived = self.population_size()/2
+        survived = np.int(survived)
+        for i in range(survived):
             x = self.cross(pop.get(i),pop.get()) # new child
 
             x = self.mutate(x)
