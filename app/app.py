@@ -114,6 +114,12 @@ def service_history(uid, option):
         db.services[uid].epoch = 0
     return redirect("/"+uid)
 
+@app.route("/history_genetic_reward_total/<string:uid>/<string:option>")
+def service_genetic_reward_total(uid, option):
+    if option == 'clear':
+        db.services[uid].genetic.history['reward_total']=[]
+    return redirect("/"+uid)
+
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True,host='127.0.0.1')

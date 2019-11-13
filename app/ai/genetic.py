@@ -3,6 +3,7 @@ import random
 import string
 from app.ai.population import Population
 import numpy as np
+import app.ai.plot as plot
 
 class Genetic():
     
@@ -11,7 +12,12 @@ class Genetic():
     def __init__(self, service):
         self.tokens = []
         self.tokens_free = []
+        self.tokens_use = []
         self.service = None
+        self.best = None
+        self.history = {'epoch':[],
+                        'reward_total':[]
+                        }
 
         self.service = service
         self.population_size = lambda: self.service.population_size
@@ -24,23 +30,25 @@ class Genetic():
         self.pop = Population()
         for _ in range(self.population_size()):
             x = self.service.copy()
-            x = self.mutate(x)
+            x = self.mutate(x,mr=10)
             self.pop.add(x)
 
         self.init_tokens()
     
     def init_tokens(self):
         self.tokens = []
+        self.tokens_use = []
         self.tokens_free = []
-        for _ in range(self.population_size()):
+        for _ in range(len(self.pop.pop)):
             token = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
-            self.tokens_free.append(token)
+            self.tokens.append(token)
+        self.tokens_free = self.tokens.copy()
         
     def finish(self,token,reward):
-        if token in self.tokens:
+        if token in self.tokens_use:
             self.use_token(token).reward_total = reward
-            self.tokens.remove(token)
-        if not self.tokens:
+            self.tokens_use.remove(token)
+        if not self.tokens_use and not self.tokens_free:
             self.evolve_population()
 
     def use_token(self,token):
@@ -50,8 +58,8 @@ class Genetic():
 
     def free_token(self):
         if self.tokens_free:
-            token =  self.tokens_free.pop(0)
-            self.tokens.append(token)
+            token =  self.tokens_free.pop()
+            self.tokens_use.append(token)
             return token
         else:
             return 'null'
@@ -82,9 +90,16 @@ class Genetic():
 
     def evolve_population(self):
         pop = self.pop
-        self.init_population() # new empty population
+        #self.init_population() # new empty population
+        self.pop = Population()
         pop.sort() # by reward as default
-        survived = self.population_size()/2
+        best = pop.get(0)
+        self.service.model = best.model.copy()
+        
+        self.pop.add(best)
+        self.history['reward_total'].append(best.reward_total)
+        childrens = 2
+        survived = self.population_size()/childrens
         survived = np.int(survived)
         for i in range(survived):
             x = self.cross(pop.get(i),pop.get()) # new child
@@ -95,6 +110,8 @@ class Genetic():
             x = self.mutate(x)
             self.pop.add(x) # add child to new populate
 
+        self.init_tokens()
 
 
-
+    def plot_reward_total(self):
+        return plot.linear(self.history['reward_total'])

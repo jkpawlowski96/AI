@@ -11,10 +11,8 @@ import sys
 
 class Service():
 
-    def __init__(self, inputs=1, outputs=1, blanc=False):
-        if blanc:
-            pass
-
+    def __init__(self, inputs=1, outputs=1, main_service=False):
+        self.main_service = main_service
         self.uid = None
         self.description = None
         self.online_learning = True
@@ -150,6 +148,8 @@ class Service():
 
     def add(self, state, action, reward):
         if not self.online_learning:
+            return None
+        if not self.main_service:
             return None
 
         state = self.to_tensor(state)

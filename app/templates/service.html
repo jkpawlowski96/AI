@@ -133,12 +133,37 @@
                 </div>
 
             </div>
+            
+            <div class="card">
+                <div class="card-header">Genetic_history</div>
+
+                <div class="card-body">
+
+                    <div class="chart" id="genetic">
+                        <script>
+                            var graphs = {{ s.genetic.plot_reward_total() | safe}};
+                            Plotly.plot('genetic', graphs, {});
+                        </script>
+                    </div>
+
+
+                </div>
+                <div class="card_body">
+                    <a href="http://localhost:5000/history_genetic_reward_total/{{s.uid}}/clear"
+                        class="btn  btn-outline-danger btn-lg">Clear</a>
+
+                </div>
+
+            </div>
+
             <div class="card">
                 <div class="card-header">Statistics</div>
                 <div class="card-body">
                     <label>Max action reward: {{s.model.reward_max}}</label>
                 </div>
             </div>
+
+
 
         </div>
     </div>
