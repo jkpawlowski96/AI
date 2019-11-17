@@ -36,7 +36,7 @@ class Database():
             return False
         self.uids.append(uid)
 
-        service = Service(inputs,outputs)
+        service = Service(inputs,outputs,main_service=True)
         service.uid = uid
         service.description = description
         service.genetic_learning = True #tmp

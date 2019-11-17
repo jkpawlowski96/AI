@@ -37,8 +37,8 @@ class Model(nn.Module):
         rmin = min(reward)
         rmax= max(reward)
         self.reward_max=max(rmax.item(),self.reward_max)       
-        #expected_action = (action * self.GAMMA) + reward
-        expected_action = action*self.GAMMA + (action/abs(action+.000000001))*reward
+        expected_action = (action * self.GAMMA) + reward
+        #expected_action = action*self.GAMMA + (action/abs(action+.000000001))*reward
         loss = self.criterion(action,expected_action)
         loss.backward()
         self.optimizer.step()

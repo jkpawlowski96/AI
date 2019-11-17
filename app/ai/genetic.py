@@ -15,6 +15,7 @@ class Genetic():
         self.tokens_use = []
         self.service = None
         self.best = None
+        self.cross_method='dna'
         self.history = {'epoch':[],
                         'reward_total':[]
                         }
@@ -32,7 +33,7 @@ class Genetic():
             x = self.service.copy()
             x = self.mutate(x,mr=10)
             self.pop.add(x)
-
+        self.best = self.pop.get()
         self.init_tokens()
     
     def init_tokens(self):
@@ -76,6 +77,12 @@ class Genetic():
         return _x
 
     def cross(self,x,y):
+        if self.cross_method is 'dna':
+            return self.cross_dna(x,y)
+        if cross_method is 'mean':
+            return self.cross_mean(x,y)
+
+    def cross_mean(self,x,y):
         child = x.copy()
         state = x.model.state_dict()
         _state = y.model.state_dict()
@@ -88,28 +95,50 @@ class Genetic():
 
         return child
 
+    def cross_dna(self,x,y):
+        child = x.copy()
+        state = x.model.state_dict()
+        _state = y.model.state_dict()
+        for k in state.keys():
+            x = state[k]
+            y = _state[k]
+            
+            
+            choice = t.randint_like(x,0,2)
+            #choice_n = choice.clone()
+            #choice_n[choice_n==0]=2
+            #choice_n[choice_n==1]=0
+            #choice_n[choice_n==2]=1
+            choice_n = (choice - 1) * -1 
+
+            state[k] = x * choice + y * choice_n
+            
+        child.model.load_state_dict(state)
+
+        return child
+
+
     def evolve_population(self):
         pop = self.pop
         #self.init_population() # new empty population
         self.pop = Population()
         pop.sort() # by reward as default
-        best = pop.get(0)
-        self.service.model = best.model.copy()
+        if self.best.reward_total < pop.get(0).reward_total:
+            self.best = pop.get(0)
+            self.service.model = self.best.model.copy()
         
-        self.pop.add(best)
-        self.history['reward_total'].append(best.reward_total)
+        self.history['reward_total'].append(self.best.reward_total)
         childrens = 2
-        survived = self.population_size()/childrens
+        survived = (self.population_size()-2)/childrens
         survived = np.int(survived)
         for i in range(survived):
-            x = self.cross(pop.get(i),pop.get()) # new child
+            for _ in range(childrens):
+                x = self.cross(pop.get(i),pop.get(i+1)) # new child
+                x = self.mutate(x)
+                self.pop.add(x) # add child to new populate
 
-            x = self.mutate(x)
-            self.pop.add(x) # add child to new populate
-
-            x = self.mutate(x)
-            self.pop.add(x) # add child to new populate
-
+        self.pop.add(self.best)
+        self.pop.add(self.mutate(self.best))
         self.init_tokens()
 
 

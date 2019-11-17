@@ -106,6 +106,9 @@
                         <label for="exampleFormControlInput1">Mutation rate</label>
                         <input type="text" name="mr" class="form-control" id="exampleFormControlInput1" value={{s.mr}}>
                     </div>
+                    <a href="http://localhost:5000/restart_genetic/{{s.uid}}"
+                        class="btn  btn-outline-danger btn-lg">Restart Population</a>
+
                     {% endif %}
                 </div>
             </div>

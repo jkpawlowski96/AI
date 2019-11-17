@@ -68,9 +68,13 @@ class Service():
         service.model = self.model.copy()  # torch model must have copy()
         return service
 
+    def init_genetic(self):
+        self.genetic = Genetic(service=self)
+
+
     def update_genetic(self):
         if self.genetic_learning and not self.genetic:  # start genetic
-            self.genetic = Genetic(service=self)
+            self.init_genetic()
         if not self.genetic_learning:  # remove gentic
             self.genetic = None
 
@@ -149,7 +153,7 @@ class Service():
     def add(self, state, action, reward):
         if not self.online_learning:
             return None
-        if not self.main_service:
+        if self.main_service:
             return None
 
         state = self.to_tensor(state)
@@ -178,7 +182,7 @@ class Service():
         return x
 
     def from_tensor(self, x):
-        x = x.round()
+        #x = x.round()
         resp = ""
         for v in x.view(-1):
             resp += str(v.item())+";"

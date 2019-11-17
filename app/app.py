@@ -5,7 +5,7 @@ import sys
 app = Flask(__name__)
 
 db = Database()
-db.add_service('ai_2', 7, 5*2, 'Manipulator simulated by Unity 3D Engine')
+db.add_service('ai_2', 8, 5*2, 'Manipulator simulated by Unity 3D Engine')
 
 
 @app.route("/")
@@ -120,6 +120,11 @@ def service_genetic_reward_total(uid, option):
         db.services[uid].genetic.history['reward_total']=[]
     return redirect("/"+uid)
 
+@app.route("/restart_genetic/<string:uid>")
+def service_genetic_restart(uid):
+    service = db.services[uid]
+    service.init_genetic()
+    return redirect("/"+uid)
 
 if __name__ == "__main__":
     app.run(debug=True,host='127.0.0.1')
