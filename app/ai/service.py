@@ -166,14 +166,17 @@ class Service():
         #    self.batch = []
 
     def train_on_batch(self):
+        x, y, r = data_from_batch()
+        loss = self.model.train(x, y, r)
+        #loss = self.model.train_loss(x, y, r)
+        self.batch = []
+        return loss
+
+    def data_from_batch(self):
         x = t.stack([t[0] for t in self.batch])
         y = t.stack([t[1] for t in self.batch])
         r = t.stack([t[2] for t in self.batch])
-
-        #loss = self.model.train(x, y, r)
-        loss = self.model.train_loss(x, y, r)
-        self.batch = []
-        return loss
+        return x, y, r
 
     def to_tensor(self, x):
         x = np.array(x).astype(np.float)

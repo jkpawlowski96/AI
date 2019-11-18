@@ -47,12 +47,9 @@ class Model(nn.Module):
         print(f'sum loss {e}', file=sys.stderr)
         return e
 
-    def train_loss(self, state, action, reward):
-        self.optimizer.zero_grad()
+    def loss(self, state, action, reward):
         action = self.forward(state)
-        rmin = min(reward)
-        rmax = max(reward)
-        self.reward_max = max(rmax.item(), self.reward_max)
+
         expected_action = (action * self.GAMMA) + reward
         #expected_action = action*self.GAMMA + (action/abs(action+.000000001))*reward
         loss = self.criterion(action, expected_action)
@@ -82,5 +79,3 @@ class Model_deep(Model):
         x = self.out(x)
         x = F.sigmoid(x)
         return x
-
-    def

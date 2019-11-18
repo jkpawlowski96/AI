@@ -112,8 +112,19 @@ class Genetic():
         return child
 
     def train_on_baches(self, pop):
-        loss = [s.train_on_bach() for s in pop]
-        self.best.model.train_on_loss(loss)
+        service = self.best.copy()
+        model = service.model
+        model.optimizer.zero_grad()
+        loss = 0
+        for s in pop:
+            # load weights form populated model
+            model.load_state_dict(s.model.state_dick())
+            # train model on batch and acumulate loss
+            loss += model.loss(s.data_from_batch())
+        loss.backward()
+        self.optimizer.step()
+        service.model = model
+        return service
 
     def evolve_population(self):
         pop = self.pop
@@ -135,8 +146,8 @@ class Genetic():
                 self.pop.add(x)  # add child to new populate
 
         self.pop.add(self.best)  # best model
-        self.train_on_baches(pop)
-        self.pop.add(self.best)  # best model trained on batches
+        x = self.train_on_baches(pop)
+        self.pop.add(x)  # best model trained on batches
         self.init_tokens()
 
     def plot_reward_total(self):
