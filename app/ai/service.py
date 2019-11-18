@@ -24,8 +24,8 @@ class Service():
         self.active = True
 
         self.genetic_learning = False
-        self.mr=0.1
-        self.population_size=4
+        self.mr = 0.1
+        self.population_size = 4
         self.genetic = None
 
         self.reward_total = 0
@@ -70,7 +70,6 @@ class Service():
 
     def init_genetic(self):
         self.genetic = Genetic(service=self)
-
 
     def update_genetic(self):
         if self.genetic_learning and not self.genetic:  # start genetic
@@ -141,7 +140,7 @@ class Service():
             return 'null'
 
         data = data.split('$')[1]
-        data = data.replace(',','.')
+        data = data.replace(',', '.')
         reward = np.float(data)
         self.genetic.finish(token, reward)
 
@@ -161,17 +160,19 @@ class Service():
         reward = self.to_tensor(reward)
 
         self.batch.append((state, action, reward))
-        if len(self.batch) > self.batch_size:
-            loss = self.train_on_batch()
-            self.losses.append(loss)
-            self.batch = []
+        # if len(self.batch) > self.batch_size:
+        #    loss = self.train_on_batch()
+        #    self.losses.append(loss)
+        #    self.batch = []
 
     def train_on_batch(self):
         x = t.stack([t[0] for t in self.batch])
         y = t.stack([t[1] for t in self.batch])
         r = t.stack([t[2] for t in self.batch])
 
-        loss = self.model.train(x, y, r)
+        #loss = self.model.train(x, y, r)
+        loss = self.model.train_loss(x, y, r)
+        self.batch = []
         return loss
 
     def to_tensor(self, x):
