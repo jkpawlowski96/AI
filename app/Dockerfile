@@ -1,6 +1,6 @@
 FROM continuumio/miniconda:latest
 
-WORKDIR /home/docker_conda_template
+WORKDIR /home/ai
 
 COPY environment.yml ./
 RUN conda env create -f environment.yml

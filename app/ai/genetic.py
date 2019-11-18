@@ -118,11 +118,13 @@ class Genetic():
         loss = 0
         for s in pop:
             # load weights form populated model
-            model.load_state_dict(s.model.state_dick())
+            w = s.model.state_dict()
+            model.load_state_dict(w)
             # train model on batch and acumulate loss
-            loss += model.loss(s.data_from_batch())
+            x,y,r = s.data_from_batch()
+            loss += model.loss(x,y,r)
         loss.backward()
-        self.optimizer.step()
+        model.optimizer.step()
         service.model = model
         return service
 
@@ -146,7 +148,7 @@ class Genetic():
                 self.pop.add(x)  # add child to new populate
 
         self.pop.add(self.best)  # best model
-        x = self.train_on_baches(pop)
+        x = self.train_on_baches(pop.pop)
         self.pop.add(x)  # best model trained on batches
         self.init_tokens()
 
