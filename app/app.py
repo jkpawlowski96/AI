@@ -5,6 +5,7 @@ import sys
 app = Flask(__name__)
 
 db = Database()
+db.add_service('ai_1', 3, 2, 'Self driven car simulated by Unity 3D Engine')
 db.add_service('ai_2', 8, 5*2, 'Manipulator simulated by Unity 3D Engine')
 
 
@@ -109,16 +110,12 @@ def service_layer(uid, option, layer):
 
 @app.route("/history/<string:uid>/<string:option>")
 def service_history(uid, option):
-    if option == 'clear':
-        db.services[uid].losses = []
-        db.services[uid].epoch = 0
+    if option == 'batch_loss':
+        db.services[uid].genetic.history['batch_loss'] = []
+    if option == 'reward_total':
+        db.services[uid].genetic.history['reward_total'] = []
     return redirect("/"+uid)
 
-@app.route("/history_genetic_reward_total/<string:uid>/<string:option>")
-def service_genetic_reward_total(uid, option):
-    if option == 'clear':
-        db.services[uid].genetic.history['reward_total']=[]
-    return redirect("/"+uid)
 
 @app.route("/restart_genetic/<string:uid>")
 def service_genetic_restart(uid):

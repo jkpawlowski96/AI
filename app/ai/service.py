@@ -19,7 +19,7 @@ class Service():
         self.batch_size = 10
         self.lr = 0.0001
         self.GAMMA = 0.999
-        self.opt = 'Adam'
+        self.opt = 'SGD'
         self.layers = []
         self.active = True
 
@@ -95,6 +95,10 @@ class Service():
             if self.genetic_learning:
                 if 'mr' in form.keys():
                     self.mr = np.float(form['mr'])
+                if 'psi' in form.keys():
+                    self.genetic.psi = np.float(form['psi'])
+                if 'childrens' in form.keys():
+                    self.genetic.childrens = np.int(form['childrens'])   
                 if 'population_size' in form.keys():
                     self.population_size = np.int(form['population_size'])
 

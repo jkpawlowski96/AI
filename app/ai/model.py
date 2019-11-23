@@ -47,10 +47,10 @@ class Model(nn.Module):
         print(f'sum loss {e}', file=sys.stderr)
         return e
 
-    def loss(self, state, action, reward):
+    def loss(self, state, action, reward,psi):
         action = self.forward(state)
 
-        expected_action = (action * self.GAMMA) + reward
+        expected_action = (action * self.GAMMA) + psi * reward
         #expected_action = action*self.GAMMA + (action/abs(action+.000000001))*reward
         loss = self.criterion(action, expected_action)
         return loss

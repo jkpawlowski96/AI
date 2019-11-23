@@ -16,20 +16,22 @@ class Genetic():
         self.best = None
         self.cross_method = 'dna'
         self.history = {'epoch': [],
-                        'reward_total': []
+                        'reward_total': [],
+                        'batch_loss':[]
                         }
 
         self.service = service
         self.population_size = lambda: self.service.population_size
+        self.childrens = 4
         self.mr = lambda: self.service.mr
-
+        self.psi = 0.0001
         self.init_population()
 
     def init_population(self):
         self.pop = Population()
         for _ in range(self.population_size()):
             x = self.service.copy()
-            x = self.mutate(x, mr=10)
+            x = self.mutate(x, mr=10, random=True)
             self.pop.add(x)
         self.best = self.pop.get()
         self.init_tokens()
@@ -64,13 +66,15 @@ class Genetic():
         else:
             return 'null'
 
-    def mutate(self, x, mr=None):
+    def mutate(self, x, mr=None,random=False):
         _x = x.copy()
         if not mr:
             mr = self.mr()
         state = x.model.state_dict()
         for k in state.keys():
-            state[k] = state[k] + (t.rand_like(state[k])*2-1)*mr
+            state[k] = state[k] + state[k]*(t.rand_like(state[k])*2-1)*mr
+            if random:
+                state[k] = (t.rand_like(state[k])*2-1)*100
 
         _x.model.load_state_dict(state)
         return _x
@@ -78,7 +82,7 @@ class Genetic():
     def cross(self, x, y):
         if self.cross_method is 'dna':
             return self.cross_dna(x, y)
-        if cross_method is 'mean':
+        if self.cross_method is 'mean':
             return self.cross_mean(x, y)
 
     def cross_mean(self, x, y):
@@ -122,10 +126,11 @@ class Genetic():
             model.load_state_dict(w)
             # train model on batch and acumulate loss
             x,y,r = s.data_from_batch()
-            loss += model.loss(x,y,r)
+            loss += model.loss(x,y,r,self.psi)
         loss.backward()
         model.optimizer.step()
         service.model = model
+        self.history['batch_loss'].append(loss.item())
         return service
 
     def evolve_population(self):
@@ -134,23 +139,35 @@ class Genetic():
         self.pop = Population()
         pop.sort()  # by reward as default
         if self.best.reward_total < pop.get(0).reward_total:
-            self.best = pop.get(0)
+            self.best = pop.get(0).copy()
+            self.best.reward_total = pop.get(0).reward_total
             self.service.model = self.best.model.copy()
-
+        
         self.history['reward_total'].append(self.best.reward_total)
-        childrens = 2
+        childrens = self.childrens
         survived = (self.population_size()-2)/childrens
         survived = np.int(survived)
         for i in range(survived):
+            x = pop.get(i)
+            _x = pop.get(i+1)
+            x = self.cross_mean(x,_x)
+            #x = self.cross_dna(x,_x)  # new dna
             for _ in range(childrens):
-                x = self.cross(pop.get(i), pop.get(i+1))  # new child
-                x = self.mutate(x)
-                self.pop.add(x)  # add child to new populate
+                _x = self.mutate(x)
+                self.pop.add(_x)  # add child to new populate
 
-        self.pop.add(self.best)  # best model
-        x = self.train_on_baches(pop.pop)
-        self.pop.add(x)  # best model trained on batches
+        self.pop.add(self.best.copy())  # best model
+        
+        if self.service.online_learning:
+            x = self.train_on_baches(pop.pop)
+            self.pop.add(x)  # best model trained on batches
+        else:
+            x = self.mutate(self.best)
+            self.pop.add(x)
         self.init_tokens()
 
     def plot_reward_total(self):
         return plot.linear(self.history['reward_total'])
+
+    def plot_batch_loss(self):
+        return plot.linear(self.history['batch_loss'])

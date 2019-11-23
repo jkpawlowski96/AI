@@ -102,6 +102,16 @@
                         <input type="number" name="population_size" class="form-control" id="exampleFormControlInput1"
                             value={{s.population_size}}>
                     </div>
+
+                    <div class="form-group">
+                        <label for="exampleFormControlInput1">Childrens</label>
+                        <input type="number" name="childrens" class="form-control" id="exampleFormControlInput1" value={{s.genetic.childrens}}>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="exampleFormControlInput1">psi</label>
+                        <input type="text" name="psi" class="form-control" id="exampleFormControlInput1" value={{s.genetic.psi}}>
+                    </div>
                     <div class="form-group">
                         <label for="exampleFormControlInput1">Mutation rate</label>
                         <input type="text" name="mr" class="form-control" id="exampleFormControlInput1" value={{s.mr}}>
@@ -116,13 +126,13 @@
 
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header">History</div>
+                <div class="card-header">Q-learning history</div>
 
                 <div class="card-body">
 
                     <div class="chart" id="bargraph">
                         <script>
-                            var graphs = {{ s.plot_losses() | safe}};
+                            var graphs = {{ s.genetic.plot_batch_loss() | safe}};
                             Plotly.plot('bargraph', graphs, {});
                         </script>
                     </div>
@@ -130,7 +140,7 @@
 
                 </div>
                 <div class="card_body">
-                    <a href="http://localhost:5000/history/{{s.uid}}/clear"
+                    <a href="http://localhost:5000/history/{{s.uid}}/batch_loss"
                         class="btn  btn-outline-danger btn-lg">Clear</a>
 
                 </div>
@@ -138,7 +148,7 @@
             </div>
             
             <div class="card">
-                <div class="card-header">Genetic_history</div>
+                <div class="card-header">Genetic history</div>
 
                 <div class="card-body">
 
@@ -152,7 +162,7 @@
 
                 </div>
                 <div class="card_body">
-                    <a href="http://localhost:5000/history_genetic_reward_total/{{s.uid}}/clear"
+                    <a href="http://localhost:5000/history/{{s.uid}}/reward_total"
                         class="btn  btn-outline-danger btn-lg">Clear</a>
 
                 </div>
