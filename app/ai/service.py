@@ -85,12 +85,19 @@ class Service():
 
             form = form.to_dict()
             # q-learning
-            self.lr_percent = form['lr_percent']
-            self.lr = np.float(form['lr'])
-            self.opt = form['opt']
-            self.GAMMA = np.float(form['GAMMA'])
-            self.batch_size = np.int(form['batch_size'])
-
+            if self.online_learning:
+                try:
+                    self.lr_percent = form['lr_percent']
+                
+                    self.lr = np.float(form['lr'])
+                
+                    self.opt = form['opt']
+    
+                    self.GAMMA = np.float(form['GAMMA'])
+                
+                    self.batch_size = np.int(form['batch_size'])
+                except:
+                    pass
             # genetic
             if self.genetic_learning:
                 if 'mr' in form.keys():
@@ -138,6 +145,7 @@ class Service():
             self.genetic_learning = True
         else:
             self.genetic_learning = False
+        self.update_genetic()
 
     def finish(self, token, data):
         if not self.genetic:

@@ -7,6 +7,7 @@ app = Flask(__name__)
 db = Database()
 db.add_service('ai_1', 3, 2, 'Self driven car simulated by Unity 3D Engine')
 db.add_service('ai_2', 8, 5*2, 'Manipulator simulated by Unity 3D Engine')
+db.add_service('nowy_obiekt', 8, 5*2, 'Sterowanie prototypem V1')
 
 
 @app.route("/")

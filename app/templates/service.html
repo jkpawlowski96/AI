@@ -24,6 +24,8 @@
                         </div>
                     </div>
 
+                    {% if s.online_learning %}
+                    <div class="card-body">
 
                     <div class="form-group">
                         <label for="customRange1">Some range</label>
@@ -52,6 +54,9 @@
                         <input type="number" name="batch_size" class="form-control" id="exampleFormControlInput1"
                             value={{s.batch_size}}>
                     </div>
+                    </div>
+                    {%endif%}
+
 
                     <div class="form-group">
 
@@ -97,6 +102,8 @@
                         <label class="custom-control-label" for="customSwitch2">Genetic Learning</label>
                     </div>
                     {% if s.genetic_learning %}
+                    <div class="card-body">
+
                     <div class="form-group">
                         <label for="exampleFormControlInput1">Population size</label>
                         <input type="number" name="population_size" class="form-control" id="exampleFormControlInput1"
@@ -122,8 +129,10 @@
                     {% endif %}
                 </div>
             </div>
-        </div>
 
+            </div>
+        </div>
+        {%if s.genetic %}
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">Q-learning history</div>
@@ -179,6 +188,7 @@
 
 
         </div>
+        {%endif%}
     </div>
 
     </div>
