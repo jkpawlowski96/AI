@@ -2,9 +2,11 @@ import numpy as np
 
 class Population():
     
+    def __init__(self):
+        self.pop = []
+
 
     def add(self,x):
-        self.pop = []
         self.pop.append(x)
 
     def sort(self,key='Reward'):

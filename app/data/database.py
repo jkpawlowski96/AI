@@ -3,12 +3,13 @@ from app.ai.service import Service
 
 
 class Database():
-    services = {}
-    uids = []
+    
 
     def __init__(self,blanc=False):
         if blanc:
             pass
+        self.services = {}
+        self.uids = []
         #self.add_service('ai_2',7,5,'Manipulator simulated by Unity 3D Engine')
 
     def build_service(self, form: dict):
@@ -35,9 +36,9 @@ class Database():
             return False
         self.uids.append(uid)
 
-        service = Service(inputs,outputs)
+        service = Service(inputs,outputs,main_service=True)
         service.uid = uid
         service.description = description
-        service.genetic_learning = True
+        service.genetic_learning = True #tmp
         service.update_service()
         self.services[uid] = service
