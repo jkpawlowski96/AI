@@ -1,19 +1,62 @@
 from app.data.database import Database
 from flask import Flask, render_template, request, flash, redirect
 import sys
+import app.data.io as io
+from flask_dropzone import Dropzone
 
 app = Flask(__name__)
+dropzone = Dropzone(app)
 
 db = Database()
-db.add_service('ai_1', 3, 2, 'Self driven car simulated by Unity 3D Engine')
-db.add_service('ai_2', 8, 5*2, 'Manipulator simulated by Unity 3D Engine')
-db.add_service('nowy_obiekt', 8, 5*2, 'Sterowanie prototypem V1')
+db.add_service('ai_1', 3, 3, 'Self driven car simulated by Unity 3D Engine')
+db.add_service('ai_2', 6, 4, 'Manipulator simulated by Unity 3D Engine')
+
 
 
 @app.route("/")
 def index():
     return render_template("index.html")
 
+@app.route("/export/<string:form>/<string:uid>")
+def export(form,uid):
+    if uid not in db.uids:
+        return redirect("/")
+    
+    return io.export(db.services[uid],form)
+
+@app.route("/import/<string:form>/<string:uid>", methods=['GET', 'POST'])
+def dropzone(form,uid):
+    if form == 'form':
+        form = dropzone.form
+        uid = dropzone.uid
+        
+    service = db.services[uid]
+    service.form = form
+
+    if request.method == "POST":
+
+        f = request.files['file']
+        #f.save(os.path.join('the/path/to/save', f.filename))
+        if io.load(service, form, f):
+            return redirect("/"+uid)
+        else:
+            return redirect("/")
+    else:
+        dropzone.uid = uid
+        dropzone.form = form
+        return render_template("load.html", s = service)
+
+@app.route("/load/<string:form>/<string:uid>")
+def load(form,uid):
+    if uid not in db.uids:
+        return redirect("/")
+    
+    service = db.services[uid]
+    data = 0
+    if io.load(service, form, data):
+        return redirect("/"+uid)
+    else:
+        return redirect("/")
 
 @app.route("/build", methods=['GET', 'POST'])
 def build():

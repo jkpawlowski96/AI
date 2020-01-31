@@ -24,14 +24,16 @@ class Genetic():
         self.population_size = lambda: self.service.population_size
         self.childrens = 4
         self.mr = lambda: self.service.mr
-        self.psi = 0.0001
+        self.psi = 0.01
         self.init_population()
 
     def init_population(self):
         self.pop = Population()
-        for _ in range(self.population_size()):
+        self.pop.add(self.service.copy())
+        for _ in range(self.population_size()-1):
             x = self.service.copy()
-            x = self.mutate(x, mr=10, random=True)
+            x = self.mutate_randn(x, random=True)
+            #x = self.mutate(x, mr=0.5)
             self.pop.add(x)
         self.best = self.pop.get()
         self.init_tokens()
@@ -66,7 +68,7 @@ class Genetic():
         else:
             return 'null'
 
-    def mutate(self, x, mr=None,random=False):
+    def mutate_randn(self, x, mr=None,random=False):
         _x = x.copy()
         if not mr:
             mr = self.mr()
@@ -74,8 +76,29 @@ class Genetic():
         for k in state.keys():
             state[k] = state[k] + state[k]*(t.rand_like(state[k])*2-1)*mr
             if random:
-                state[k] = (t.rand_like(state[k])*2-1)*100
+                state[k] = (t.rand_like(state[k])*2-1)
 
+        _x.model.load_state_dict(state)
+        return _x
+
+    def mutate(self, x, mr=None):
+        _x = x.copy()
+        if not mr:
+            mr = self.mr()
+        state = x.model.state_dict()
+
+        i = np.random.randint(low=0,high=len(state))
+        k = list(state.keys())[i]
+
+        select = t.rand_like(state[k]) <= mr
+        filtr = t.zeros_like(state[k])
+        filtr[select] = 1
+        
+        mut = (t.rand_like(state[k])*2)-1
+        mut = mut * filtr
+
+        state[k] = state[k] + mut * self.psi
+            
         _x.model.load_state_dict(state)
         return _x
 
@@ -126,7 +149,7 @@ class Genetic():
             model.load_state_dict(w)
             # train model on batch and acumulate loss
             x,y,r = s.data_from_batch()
-            loss += model.loss(x,y,r,self.psi)
+            loss += model.loss(x,y,r)
         loss.backward()
         model.optimizer.step()
         service.model = model
@@ -150,11 +173,12 @@ class Genetic():
         for i in range(survived):
             x = pop.get(i)
             _x = pop.get(i+1)
-            x = self.cross_mean(x,_x)
+            #x = self.cross_mean(x,_x)
             #x = self.cross_dna(x,_x)  # new dna
             for _ in range(childrens):
-                _x = self.mutate(x)
-                self.pop.add(_x)  # add child to new populate
+                child = self.cross_dna(x,_x)  # new dna
+                child = self.mutate(child)
+                self.pop.add(child)  # add child to new populate
 
         self.pop.add(self.best.copy())  # best model
         

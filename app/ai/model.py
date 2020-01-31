@@ -47,10 +47,10 @@ class Model(nn.Module):
         print(f'sum loss {e}', file=sys.stderr)
         return e
 
-    def loss(self, state, action, reward,psi):
+    def loss(self, state, action, reward):
         action = self.forward(state)
 
-        expected_action = (action * self.GAMMA) + psi * reward
+        expected_action = (action * self.GAMMA) + reward
         #expected_action = action*self.GAMMA + (action/abs(action+.000000001))*reward
         loss = self.criterion(action, expected_action)
         return loss
@@ -77,5 +77,6 @@ class Model_deep(Model):
             x = self.linear[i](x)
             x = F.relu(x)
         x = self.out(x)
+        #x = F.softmax(x)
         x = F.sigmoid(x)
         return x
